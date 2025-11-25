@@ -5,5 +5,6 @@ edition = "2024"
 
 [dependencies]
 paste = "1.0.0"
+embedded-hal = "1.0.0"
 
 test_pack = { path = "../../ECTF/test_pack" }
