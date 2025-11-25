@@ -25,7 +25,7 @@ macro_rules! gpio {
     ($GPIO_PORT:ident, $GPIO_NUM:literal, $GPIO_PAC: ident, [$($PIN_NUMS:literal),*]) => {
 
         paste! {
-            pub mod [<gpio $GPIO_PORT _ m o d>] {
+            pub mod [<gpio $GPIO_PORT _mod>] {
 
                 use crate::pac::$GPIO_PAC as $GPIO_PAC;
                 use crate::pac::Iomux as Iomux;
@@ -44,6 +44,7 @@ macro_rules! gpio {
 
                     fn enable_output(&self) {
                         let gpio = unsafe { &*$GPIO_PAC::ptr() };
+
                         let iomux = unsafe { &*Iomux::ptr() };
                         let pincm: usize = match stringify!($GPIO_PORT) {
                             "a" =>  (match N {
