@@ -42,19 +42,45 @@ macro_rules! gpio {
                         Self { _mode: PhantomData }
                     }
 
-                    fn enable_output(&self, iomux: Iomux) {
+                    fn enable_output(&self) {
                         let gpio = unsafe { &*$GPIO_PAC::ptr() };
-                        iomux.iomux_pincm(41).write(|w| { 
-                            unsafe { w.pf().bits(0x1) };
-                            w.pc().connected()
-                        });
-                        gpio.[<gpio $GPIO_PORT _ doeset31_0>]().write(|w| 
-                            unsafe { w.bits(1 << N) });
+                        let iomux = unsafe { &*Iomux::ptr() };
+                        let pincm: usize = match stringify!($GPIO_PORT) {
+                            "a" =>  (match N {
+                                            0| 1 => N+1,
+                                            2| 3| 4| 5| 6 => N+5,
+                                            7 => N+7,
+                                            8| 9 => N+11,
+                                            10| 11 => N+15,
+                                            12| 13| 14| 15| 16 => N+26,
+                                            17| 18| 19| 20 => N + 32,
+                                            21| 22 => N + 35,
+                                            23| 24| 25 => N + 44,
+                                            26| 27 => N + 47,
+                                            28| 29| 30 => N - 25,
+                                            _ => panic!("What is this pin??")
+                                        }) as usize - 1,
+                            "b" => (match N {
+                                            0| 1 => N+12,
+                                            2| 3| 4| 5 => N+13,
+                                            6| 7| 8| 9| 10| 11| 12| 13| 14| 15| 16 => N+21,
+                                            17| 18| 19 => N + 36,
+                                            20| 21| 22| 23| 24 => N+42,
+                                            25| 26| 27 => N+45,
+                                            28| 29| 30| 31 => N-7,
+
+                                            _ => panic!("What is this pin??")
+                                        }) as usize - 1,
+                            "c" => 0,
+                            _ => panic!("Unknown GPIO Port")
+                            };
+                                iomux.iomux_pincm(pincm).write(|w| unsafe { w.bits(0x80 | 0x1) });
+                        gpio.[<gpio $GPIO_PORT _doeset31_0>]().write(|w| unsafe { w.bits(1 << N) });
                     }
 
-                    pub fn into_output(&self, iomux: Iomux) -> Pin::<N, Output> {
-                        let pin = Pin::<N, Output>::new();
-                        pin.enable_output(iomux);
+                    pub fn into_output(&self) -> Pin::<N, Output> {
+                        let mut pin = Pin::<N, Output>::new();
+                        pin.enable_output();
                         pin
                     }
                 }
@@ -135,9 +161,17 @@ gpio!(
     0,
     Gpioa,
     [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        20, 21
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30
     ]
 );
-// gpio!(b, 1, Gpiob, [0, 1, 2, 3]);
-// gpio!(c, 2, Gpioc, [0, 1, 2, 3]);
+gpio!(
+    b,
+    1,
+    Gpiob,
+    [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30, 31
+    ]
+);
+gpio!(c, 2, Gpioc, [0, 1, 2, 3]);
