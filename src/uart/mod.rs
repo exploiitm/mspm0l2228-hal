@@ -13,14 +13,6 @@ pub struct uart0 {
     _uart: pac::Uart0,
 }
 
-/// UART clock source selection
-
-// uart_config.rs
-
-// oversampling_config.rs
-
-// fifo_config.rs
-
 macro_rules! update_reg {
     ($r:ident, $w:ident, $threshold:expr, $mask:expr) => {
         $w.bits(($r.bits() & !($mask)) | (($threshold) & ($mask)))
