@@ -43,18 +43,21 @@ impl Trng {
             ClockDiv::Div8 => w.ratio().div_by_8(),
         });
 
-        trng.trng_imask().write(|w| {
-            w.irq_health_fail().disabled();
-            w.irq_cmd_fail().disabled();
-            w.irq_cmd_done().disabled();
-            w.irq_captured_rdy().disabled()
-        });
+        // trng.trng_imask().write(|w| {
+        //     w.irq_health_fail().disabled();
+        //     w.irq_cmd_fail().disabled();
+        //     w.irq_cmd_done().disabled();
+        //     w.irq_captured_rdy().disabled()
+        // });
 
         trng.trng_ctl().write(|w| w.cmd().norm_func());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_dig());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
+
         if trng.trng_test_results().read().dig_test().bits() != 0xFF {
             return Err(TrngInitError::DigitalBlockHealthCheck(
                 trng.trng_test_results().read().dig_test().bits(),
@@ -63,6 +66,8 @@ impl Trng {
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_ana());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
+
         if trng.trng_test_results().read().ana_test() == false {
             return Err(TrngInitError::AnalogBlockHealthCheck);
         }
@@ -77,6 +82,7 @@ impl Trng {
         });
 
         while !trng.trng_mis().read().irq_captured_rdy().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         let _discard: u32 = trng.trng_data_capture().read().bits();
 
         Ok(Self { _trng: trng })
@@ -84,6 +90,7 @@ impl Trng {
 
     pub fn gen_u32(&self) -> u32 {
         while !self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
+        self._trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         self._trng.trng_data_capture().read().bits()
     }
 }
