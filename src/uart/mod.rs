@@ -33,6 +33,27 @@ impl Uart0 {
     fn init(&mut self) {
         self.disable();
 
+        // Set baud-rate divisor
+        const UART_IBRD_DIVINT_MASK: u32 = 0x0000FFFF;
+        const UART_FBRD_DIVFRAC_MASK: u32 = 0x0000003F;
+        const UART_LCRH_BRK_MASK: u32 = 0x00000001;
+        let integer_divisor = 208;
+        let fractional_divisor = 21;
+        self._uart.uart0_ibrd().modify(|r, w| unsafe {
+            update_reg!(r, w, integer_divisor, UART_IBRD_DIVINT_MASK)
+        });
+        self._uart.uart0_fbrd().modify(|r, w| unsafe {
+            update_reg!(r, w, fractional_divisor, UART_FBRD_DIVFRAC_MASK)
+        });
+        // When updating the baud-rate divisor (UARTIBRD or UARTIFRD),
+        // the LCRH register must also be written to (any bit in LCRH can
+        // be written to for updating the baud-rate divisor).
+        self._uart.uart0_lcrh().modify(|r, w| unsafe {
+            let value = r.bits() & UART_LCRH_BRK_MASK;
+
+            update_reg!(r, w, value, UART_LCRH_BRK_MASK)
+        });
+
         const CTL0_RXE_MASK: u32 = 0x0000_0008;
         const CTL0_TXE_MASK: u32 = 0x0000_0010;
         const CTL0_MODE_MASK: u32 = 0x0000_0700;
@@ -85,12 +106,18 @@ impl Uart0 {
                     | LCRH_STP2_MASK
             )
         });
-
-        self.enable();
     }
 
     pub fn new(uart: pac::Uart0) -> Self {
         let mut result = Self { _uart: uart };
+
+        let iomux = unsafe { &*Iomux::ptr() };
+        iomux
+            .iomux_pincm(24)
+            .write(|w| unsafe { w.bits(0x80 | 0x2) });
+        iomux
+            .iomux_pincm(25)
+            .write(|w| unsafe { w.bits(0x80 | 0x2 | 0x0004_0000) });
 
         // Reset
         const RSTCTL_KEY_UNLOCK: u32 = 0xB100_0000;
@@ -130,6 +157,8 @@ impl Uart0 {
             .uart0_clkdiv()
             .write(|w| unsafe { w.bits(clock_config.divider as u32) });
 
+        // Disable UART
+        // Also set baud-rate
         result.init();
 
         // Set oversampling rate
@@ -137,27 +166,6 @@ impl Uart0 {
         let rate = oversampling_config::UartOversamplingRate::Rate16x;
         result._uart.uart0_ctl0().modify(|r, w| unsafe {
             update_reg!(r, w, rate as u32, CTL0_HSE_MASK)
-        });
-
-        // Set baud-rate divisor
-        const UART_IBRD_DIVINT_MASK: u32 = 0x0000FFFF;
-        const UART_FBRD_DIVFRAC_MASK: u32 = 0x0000003F;
-        const UART_LCRH_BRK_MASK: u32 = 0x00000001;
-        let integer_divisor = 208;
-        let fractional_divisor = 21;
-        result._uart.uart0_ibrd().modify(|r, w| unsafe {
-            update_reg!(r, w, integer_divisor, UART_IBRD_DIVINT_MASK)
-        });
-        result._uart.uart0_fbrd().modify(|r, w| unsafe {
-            update_reg!(r, w, fractional_divisor, UART_FBRD_DIVFRAC_MASK)
-        });
-        // When updating the baud-rate divisor (UARTIBRD or UARTIFRD),
-        // the LCRH register must also be written to (any bit in LCRH can
-        // be written to for updating the baud-rate divisor).
-        result._uart.uart0_lcrh().modify(|r, w| unsafe {
-            let value = r.bits() & UART_LCRH_BRK_MASK;
-
-            update_reg!(r, w, value, UART_LCRH_BRK_MASK)
         });
 
         // Enable FIFOs
@@ -169,31 +177,25 @@ impl Uart0 {
             w.bits(val | UART_CTL0_FEN_ENABLE)
         });
 
-        let threshold = fifo_config::RxFifoLevel::Full;
-        result.set_rx_fifo_threshold(threshold);
-        let threshold = fifo_config::TxFifoLevel::Empty;
-        result.set_tx_fifo_threshold(threshold);
+        result.set_rx_fifo_threshold(fifo_config::RxFifoLevel::Full);
+        result.set_tx_fifo_threshold(fifo_config::TxFifoLevel::Empty);
 
-        let iomux = unsafe { &*Iomux::ptr() };
-        iomux
-            .iomux_pincm(24)
-            .write(|w| unsafe { w.bits(0x80 | 0x2) });
-        iomux
-            .iomux_pincm(25)
-            .write(|w| unsafe { w.bits(0x80 | 0x2 | 0x0004_0000) });
+        result.enable();
 
         let sysctl = unsafe { &*Sysctl::ptr() };
         sysctl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
         // SYSCTL.soc_lock.bor_threshold = 0;
 
-        sysctl
-            .sysctl_sysosccfg()
-            .modify(|r, w| unsafe { w.bits((r.bits() & !(0x3)) | (0 & 0x3)) });
+        sysctl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            //
+            update_reg!(r, w, 0, 0x3)
+        });
         // update_reg(&mut SYSCTL.soc_lock.sysosc_cfg, 0, 0x3);
         // SYSCTL.soc_lock.hsclk_en &= !(1 as u32);
-        sysctl
-            .sysctl_hsclken()
-            .modify(|r, w| unsafe { w.bits(r.bits() & !(1 as u32)) });
+        sysctl.sysctl_hsclken().modify(|r, w| unsafe {
+            //
+            w.bits(r.bits() & !(1 as u32))
+        });
 
         result
     }
