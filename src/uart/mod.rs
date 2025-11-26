@@ -215,6 +215,7 @@ impl Uart0 {
         });
     }
 
+    #[inline(always)]
     fn is_txfifo_full(&self) -> bool {
         const UART_STAT_TXFF_MASK: u32 = 0x00000080;
         const UART_STAT_TXFF_SET: u32 = 0x00000080;
@@ -223,10 +224,38 @@ impl Uart0 {
             == UART_STAT_TXFF_SET
     }
 
+    #[inline(always)]
+    fn is_rxfifo_empty(&self) -> bool {
+        const UART_STAT_RXFE_MASK: u32 = 0x00000004;
+        const UART_STAT_RXFE_SET: u32 = 0x00000004;
+
+        (self._uart.uart0_stat().read().bits() & UART_STAT_RXFE_MASK)
+            == UART_STAT_RXFE_SET
+    }
+
     pub fn transmit(&mut self, data: u8) {
         while self.is_txfifo_full() {}
         self._uart
             .uart0_txdata()
             .write(|w| unsafe { w.bits(data as u32) });
+    }
+
+    pub fn read_byte_blocking(&self) -> u8 {
+        const UART_RXDATA_DATA_MASK: u32 = 0x000000FF;
+        while self.is_rxfifo_empty() {}
+
+        (self._uart.uart0_rxdata().read().bits() & UART_RXDATA_DATA_MASK) as u8
+    }
+
+    pub fn read_byte(&self) -> Option<u8> {
+        if self.is_rxfifo_empty() {
+            None
+        } else {
+            const UART_RXDATA_DATA_MASK: u32 = 0x000000FF;
+            Some(
+                (self._uart.uart0_rxdata().read().bits()
+                    & UART_RXDATA_DATA_MASK) as u8,
+            )
+        }
     }
 }
