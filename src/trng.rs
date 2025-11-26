@@ -52,9 +52,11 @@ impl Trng {
 
         trng.trng_ctl().write(|w| w.cmd().norm_func());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_dig());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
 
         if trng.trng_test_results().read().dig_test().bits() != 0xFF {
             return Err(TrngInitError::DigitalBlockHealthCheck(
@@ -64,6 +66,7 @@ impl Trng {
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_ana());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
+        trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
 
         if trng.trng_test_results().read().ana_test() == false {
             return Err(TrngInitError::AnalogBlockHealthCheck);
