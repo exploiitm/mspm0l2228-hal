@@ -9,7 +9,7 @@ mod fifo_config;
 mod oversampling_config;
 mod uart_config;
 
-pub struct uart0 {
+pub struct Uart0 {
     _uart: pac::Uart0,
 }
 
@@ -19,7 +19,7 @@ macro_rules! update_reg {
     };
 }
 
-impl uart0 {
+impl Uart0 {
     fn enable(&mut self) {
         self._uart.uart0_ctl0().write(|w| unsafe { w.bits(0x1) });
     }
