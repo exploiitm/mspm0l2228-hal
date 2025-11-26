@@ -1,5 +1,7 @@
 use crate::pac;
 use core::marker::PhantomData;
+use pac::Iomux;
+use pac::Sysctl;
 use paste::paste;
 
 pub struct uart0 {
@@ -47,7 +49,7 @@ pub struct UartClockConfig {
 #[repr(u32)]
 #[derive(Copy, Clone)]
 pub enum UartPulseWidth {
-    Ns5 = 0x0000_0000,  // Pulses shorter than 5ns length are filtered
+    Ns5 = 0x0000_0000, // Pulses shorter than 5ns length are filtered
     Ns10 = 0x0000_0200, // Pulses shorter than 10ns length are filtered
     Ns25 = 0x0000_0400, // Pulses shorter than 25ns length are filtered
     Ns50 = 0x0000_0600, // Pulses shorter than 50ns length are filtered
@@ -57,10 +59,10 @@ pub enum UartPulseWidth {
 #[derive(Copy, Clone)]
 pub enum UartParity {
     Even = 0x0000_0002 | 0x0000_0004, // Enable even parity generation, checks for even number of 1s
-    Odd = 0x0000_0002 | 0x0000_0000,  // Enable odd parity generation, checks for odd number of 1s
+    Odd = 0x0000_0002 | 0x0000_0000, // Enable odd parity generation, checks for odd number of 1s
     StickOne = 0x0000_0002 | 0x0000_0040, // Enable stick parity with parity bit '1'
     StickZero = 0x0000_0002 | 0x0000_0040 | 0x0000_0004, // Stick parity with parity bit '0'
-    None = 0x0000_0000,               // Disable parity checking and generation
+    None = 0x0000_0000, // Disable parity checking and generation
 }
 
 #[repr(u32)]
@@ -110,12 +112,12 @@ pub enum UartFlowControl {
 
 #[derive(Copy, Clone)]
 pub struct UartConfig {
-    pub mode: UartMode,                // Communication mode and protocol
-    pub direction: UartDirection,      // TX/RX enable configuration
+    pub mode: UartMode, // Communication mode and protocol
+    pub direction: UartDirection, // TX/RX enable configuration
     pub flow_control: UartFlowControl, // Flow control configuration
-    pub parity: UartParity,            // Parity configuration
-    pub word_length: UartWordLength,   // Word length
-    pub stop_bits: UartStopBits,       // Stop bits configuration
+    pub parity: UartParity, // Parity configuration
+    pub word_length: UartWordLength, // Word length
+    pub stop_bits: UartStopBits, // Stop bits configuration
 }
 
 // oversampling_config.rs
@@ -187,7 +189,9 @@ impl uart0 {
             ._uart
             .uart0_gprcm(0)
             .uart0_rstctl()
-            .write(|w| unsafe { w.bits(RSTCTL_KEY_UNLOCK | RSTCTL_STKYCLR | RSTCTL_ASSERT) });
+            .write(|w| unsafe {
+                w.bits(RSTCTL_KEY_UNLOCK | RSTCTL_STKYCLR | RSTCTL_ASSERT)
+            });
 
         const PWREN_KEY_UNLOCK: u32 = 0x2600_0000;
         const PWREN_ENABLE: u32 = 0x0000_0001;
@@ -235,7 +239,9 @@ impl uart0 {
 
             w.bits(update_reg(
                 val,
-                config.mode as u32 | config.direction as u32 | config.flow_control as u32,
+                config.mode as u32
+                    | config.direction as u32
+                    | config.flow_control as u32,
                 CTL0_RXE_MASK
                     | CTL0_TXE_MASK
                     | CTL0_MODE_MASK
@@ -256,8 +262,14 @@ impl uart0 {
 
             w.bits(update_reg(
                 val,
-                (config.parity as u32) | (config.word_length as u32) | (config.stop_bits as u32),
-                LCRH_PEN_ENABLE | LCRH_EPS_MASK | LCRH_SPS_MASK | LCRH_WLEN_MASK | LCRH_STP2_MASK,
+                (config.parity as u32)
+                    | (config.word_length as u32)
+                    | (config.stop_bits as u32),
+                LCRH_PEN_ENABLE
+                    | LCRH_EPS_MASK
+                    | LCRH_SPS_MASK
+                    | LCRH_WLEN_MASK
+                    | LCRH_STP2_MASK,
             ))
         });
 
@@ -268,7 +280,6 @@ impl uart0 {
 
             w.bits(update_reg(val, rate as u32, CTL0_HSE_MASK))
         });
-
 
         const UART_IBRD_DIVINT_MASK: u32 = 0x0000FFFF;
         const UART_FBRD_DIVFRAC_MASK: u32 = 0x0000003F;
@@ -322,6 +333,33 @@ impl uart0 {
 
         result.enable();
 
+        let iomux = unsafe { &*Iomux::ptr() };
+        iomux
+            .iomux_pincm(24)
+            .write(|w| unsafe { w.bits(0x80 | 0x2) });
+        iomux
+            .iomux_pincm(25)
+            .write(|w| unsafe { w.bits(0x80 | 0x2 | 0x0004_0000) });
+
+        let sysctl = unsafe { &*Sysctl::ptr() };
+        sysctl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
+        // SYSCTL.soc_lock.bor_threshold = 0;
+
+        sysctl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            w.bits((r.bits() & !(0x3)) | (r.bits() & 0x3))
+        });
+        // update_reg(&mut SYSCTL.soc_lock.sysosc_cfg, 0, 0x3);
+        // SYSCTL.soc_lock.hsclk_en &= !(1 as u32);
+        sysctl
+            .sysctl_hsclken()
+            .modify(|r, w| unsafe { w.bits(r.bits() & !(1 as u32)) });
+
         result
+    }
+
+    pub fn transmit(&mut self, data: u8) {
+        self._uart
+            .uart0_txdata()
+            .write(|w| unsafe { w.bits(data as u32) });
     }
 }
