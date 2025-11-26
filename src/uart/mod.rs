@@ -21,13 +21,14 @@ macro_rules! update_reg {
 
 impl Uart0 {
     fn enable(&mut self) {
-        self._uart.uart0_ctl0().write(|w| unsafe { w.bits(0x1) });
-    }
-    fn disable(&mut self) {
-        let value = self._uart.uart0_ctl0().read().bits() as u32;
         self._uart
             .uart0_ctl0()
-            .write(|w| unsafe { w.bits(value & !0x1) });
+            .modify(|r, w| unsafe { w.bits(r.bits() | 0x1) });
+    }
+    fn disable(&mut self) {
+        self._uart
+            .uart0_ctl0()
+            .modify(|r, w| unsafe { w.bits(r.bits() & !0x1) });
     }
 
     fn init(&mut self) {
@@ -177,25 +178,25 @@ impl Uart0 {
             w.bits(val | UART_CTL0_FEN_ENABLE)
         });
 
-        result.set_rx_fifo_threshold(fifo_config::RxFifoLevel::Full);
-        result.set_tx_fifo_threshold(fifo_config::TxFifoLevel::Empty);
-
-        result.enable();
+        let threshold = fifo_config::RxFifoLevel::Full;
+        result.set_rx_fifo_threshold(threshold);
+        let threshold = fifo_config::TxFifoLevel::Empty;
+        result.set_tx_fifo_threshold(threshold);
 
         let sysctl = unsafe { &*Sysctl::ptr() };
         sysctl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
         // SYSCTL.soc_lock.bor_threshold = 0;
 
-        sysctl.sysctl_sysosccfg().modify(|r, w| unsafe {
-            //
-            update_reg!(r, w, 0, 0x3)
-        });
+        sysctl
+            .sysctl_sysosccfg()
+            .modify(|r, w| unsafe { w.bits((r.bits() & !(0x3)) | (0 & 0x3)) });
         // update_reg(&mut SYSCTL.soc_lock.sysosc_cfg, 0, 0x3);
         // SYSCTL.soc_lock.hsclk_en &= !(1 as u32);
-        sysctl.sysctl_hsclken().modify(|r, w| unsafe {
-            //
-            w.bits(r.bits() & !(1 as u32))
-        });
+        sysctl
+            .sysctl_hsclken()
+            .modify(|r, w| unsafe { w.bits(r.bits() & !(1 as u32)) });
+
+        result.enable();
 
         result
     }
