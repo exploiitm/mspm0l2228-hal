@@ -14,7 +14,7 @@ pub struct Trng {
 
 #[derive(Debug)]
 pub enum TrngInitError {
-    DigitalBlockHealthCheck,
+    DigitalBlockHealthCheck(u8),
     AnalogBlockHealthCheck,
 }
 
@@ -56,7 +56,9 @@ impl Trng {
         trng.trng_ctl().write(|w| w.cmd().pwrup_dig());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         if trng.trng_test_results().read().dig_test().bits() != 0xFF {
-            return Err(TrngInitError::DigitalBlockHealthCheck);
+            return Err(TrngInitError::DigitalBlockHealthCheck(
+                trng.trng_test_results().read().dig_test().bits(),
+            ));
         }
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_ana());
