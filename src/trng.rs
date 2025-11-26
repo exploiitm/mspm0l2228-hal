@@ -92,8 +92,8 @@ impl Trng {
     }
 
     pub fn gen_u32(&self) -> u32 {
-        self._trng.trng_ctl().write(|w| w.cmd().norm_func());
-        while !self._trng.trng_ris().read().irq_cmd_done().is_set() {}
+        // self._trng.trng_ctl().write(|w| w.cmd().norm_func());
+        // while !self._trng.trng_ris().read().irq_cmd_done().is_set() {}
 
         while !self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
         self._trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
