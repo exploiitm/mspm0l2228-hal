@@ -24,16 +24,9 @@ impl Trng {
         div: ClockDiv,
         decim: u8,
     ) -> Result<Self, TrngInitError> {
-        trng.trng_gprcm(0).trng_rstctl().write(|w| {
-            w.resetassert().assert();
-            w.resetstkyclr().clr();
-            w.key_unlock().unlock()
-        });
 
-        trng.trng_gprcm(0).trng_pwren().write(|w| {
-            w.enable().enable();
-            w.key_unlock().unlock()
-        });
+        Self::reset(&trng);
+        Self::enable_power(&trng);
 
         trng.trng_clkdivide().write(|w| match div {
             ClockDiv::Div1 => w.ratio().div_by_1(),
@@ -54,6 +47,7 @@ impl Trng {
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
 
+        // Check Digital Block Health
         trng.trng_ctl().write(|w| w.cmd().pwrup_dig());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
@@ -64,6 +58,7 @@ impl Trng {
             ));
         }
 
+        // Check Analog Block Health
         trng.trng_ctl().write(|w| w.cmd().pwrup_ana());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         trng.trng_iclr().write(|w| w.irq_cmd_done().clr());
@@ -86,17 +81,31 @@ impl Trng {
 
         while !trng.trng_mis().read().irq_captured_rdy().is_set() {}
         trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
+
+        // Discard first byte - deterministic
         let _discard: u32 = trng.trng_data_capture().read().bits();
 
         Ok(Self { _trng: trng })
     }
 
     pub fn gen_u32(&self) -> u32 {
-        // self._trng.trng_ctl().write(|w| w.cmd().norm_func());
-        // while !self._trng.trng_ris().read().irq_cmd_done().is_set() {}
-
         while !self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
         self._trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         self._trng.trng_data_capture().read().bits()
+    }
+
+    fn reset(trng: &crate::pac::Trng) {
+        trng.trng_gprcm(0).trng_rstctl().write(|w| {
+            w.resetassert().assert();
+            w.resetstkyclr().clr();
+            w.key_unlock().unlock()
+        });
+    }
+
+    fn enable_power(trng: &crate::pac::Trng) {
+        trng.trng_gprcm(0).trng_pwren().write(|w| {
+            w.enable().enable();
+            w.key_unlock().unlock()
+        });
     }
 }
