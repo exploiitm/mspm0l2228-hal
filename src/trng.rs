@@ -1,3 +1,5 @@
+use core::error::Error;
+
 pub enum ClockDiv {
     Div1,
     Div2,
@@ -7,11 +9,21 @@ pub enum ClockDiv {
 }
 
 pub struct Trng {
-    _trng: crate::pac::Trng
+    _trng: crate::pac::Trng,
+}
+
+#[derive(Debug)]
+pub enum TrngInitError {
+    DigitalBlockHealthCheck,
+    AnalogBlockHealthCheck,
 }
 
 impl Trng {
-    pub fn new(trng: crate::pac::Trng, div: ClockDiv, decim: u8) -> Self {
+    pub fn new(
+        trng: crate::pac::Trng,
+        div: ClockDiv,
+        decim: u8,
+    ) -> Result<Self, TrngInitError> {
         trng.trng_gprcm(0).trng_rstctl().write(|w| {
             w.resetassert().assert();
             w.resetstkyclr().clr();
@@ -23,15 +35,13 @@ impl Trng {
             w.key_unlock().unlock()
         });
 
-        trng.trng_clkdivide().write(|w| 
-            match div {
-                ClockDiv::Div1 => w.ratio().div_by_1(),
-                ClockDiv::Div2 => w.ratio().div_by_2(),
-                ClockDiv::Div4 => w.ratio().div_by_4(),
-                ClockDiv::Div6 => w.ratio().div_by_6(),
-                ClockDiv::Div8 => w.ratio().div_by_8(),
-            }
-        );
+        trng.trng_clkdivide().write(|w| match div {
+            ClockDiv::Div1 => w.ratio().div_by_1(),
+            ClockDiv::Div2 => w.ratio().div_by_2(),
+            ClockDiv::Div4 => w.ratio().div_by_4(),
+            ClockDiv::Div6 => w.ratio().div_by_6(),
+            ClockDiv::Div8 => w.ratio().div_by_8(),
+        });
 
         trng.trng_imask().write(|w| {
             w.irq_health_fail().disabled();
@@ -46,17 +56,18 @@ impl Trng {
         trng.trng_ctl().write(|w| w.cmd().pwrup_dig());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         if trng.trng_test_results().read().dig_test().bits() != 0xFF {
-            panic!("TRNG Digital Block Health check fail")
+            return Err(TrngInitError::DigitalBlockHealthCheck);
         }
 
         trng.trng_ctl().write(|w| w.cmd().pwrup_ana());
         while !trng.trng_ris().read().irq_cmd_done().is_set() {}
         if trng.trng_test_results().read().ana_test() == false {
-            panic!("TRNG Analog Block Health check fail")
+            return Err(TrngInitError::AnalogBlockHealthCheck);
         }
 
         trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
-        trng.trng_ctl().write(|w| unsafe {w.decim_rate().bits(0x7 & decim)});
+        trng.trng_ctl()
+            .write(|w| unsafe { w.decim_rate().bits(0x7 & decim) });
 
         trng.trng_imask().write(|w| {
             w.irq_health_fail().disabled();
@@ -66,7 +77,7 @@ impl Trng {
         while !trng.trng_mis().read().irq_captured_rdy().is_set() {}
         let _discard: u32 = trng.trng_data_capture().read().bits();
 
-        Self { _trng: trng }
+        Ok(Self { _trng: trng })
     }
 
     pub fn gen_u32(&self) -> u32 {

@@ -215,7 +215,16 @@ impl Uart0 {
         });
     }
 
+    fn is_txfifo_full(&self) -> bool {
+        const UART_STAT_TXFF_MASK: u32 = 0x00000080;
+        const UART_STAT_TXFF_SET: u32 = 0x00000080;
+
+        (self._uart.uart0_stat().read().bits() & UART_STAT_TXFF_MASK)
+            == UART_STAT_TXFF_SET
+    }
+
     pub fn transmit(&mut self, data: u8) {
+        while self.is_txfifo_full() {}
         self._uart
             .uart0_txdata()
             .write(|w| unsafe { w.bits(data as u32) });
