@@ -1,6 +1,6 @@
 use crate::pac;
+use crate::utils::update_reg;
 use pac::Iomux;
-
 #[repr(u32)]
 pub enum I2cClock {
     /// Selects BUSCLK as the clock source
@@ -38,6 +38,30 @@ pub struct I2cClockConfig {
 }
 
 #[repr(u32)]
+enum I2cTxFifoLevel {
+    LevelEmpty,
+    Level1,
+    Level2,
+    Level3,
+    Level4,
+    Level5,
+    Level6,
+    Level7,
+}
+
+#[repr(u32)]
+enum I2cRxFifoLevel {
+    Level1,
+    Level2,
+    Level3,
+    Level4,
+    Level5,
+    Level6,
+    Level7,
+    Level8,
+}
+
+#[repr(u32)]
 enum GpioInversion {
     Enable = 0x04000000,
     Disable = 0x00000000,
@@ -62,6 +86,10 @@ enum GpioWakeup {
 
 pub struct I2C0 {
     _i2c: pac::I2c0,
+}
+
+pub trait Target {
+    fn new(i2c: pac::I2c0) -> Self;
 }
 
 impl I2C0 {
@@ -91,7 +119,16 @@ impl I2C0 {
             )
         });
     }
-    pub fn new(i2c: pac::I2c0) -> Self {
+    fn set_timer_period(&mut self, period: u8) {
+        self._i2c
+            .i2c0_controller(0)
+            .i2c0_ctpr()
+            .write(|w| unsafe { w.bits(period as u32) });
+    }
+}
+
+impl Controller for I2C0 {
+    fn new(i2c: pac::I2c0) -> Self {
         let mut result = Self { _i2c: i2c };
 
         // I2C reset:
@@ -146,14 +183,32 @@ impl I2C0 {
             .modify(|r, w| unsafe { w.bits(r.bits() | HIZ_ENABLE) }); // SCL 
 
         let systcl = unsafe { &*pac::Sysctl::ptr() };
-        // let scb = pac::SCB ;
-        // pac::SCB::set_sleepdeep(&mut scb);
+        let scb = unsafe { &*pac::SCB::PTR };
+        let scr = scb.scr.read();
+        unsafe { scb.scr.write(scr | 0x4) };
 
-        // ::set_sleepdeep();
         const SYSCTL_PMODECFG_DSLEEP_STOP: u32 = 0x00000000;
         systcl
             .sysctl_pmodecfg()
             .write(|w| unsafe { w.bits(SYSCTL_PMODECFG_DSLEEP_STOP) });
+        const SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK: u32 = 0x00000100;
+        const SYSCTL_SYSOSCCFG_DISABLESTOP_MASK: u32 = 0x00000200;
+        systcl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            w.bits(
+                r.bits()
+                    & !(SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK
+                        | SYSCTL_SYSOSCCFG_DISABLESTOP_MASK),
+            )
+        });
+
+        systcl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
+        systcl
+            .sysctl_sysosccfg()
+            .modify(|r, w| unsafe { update_reg!(r, w, 0, 3) });
+
+        systcl
+            .sysctl_hsclken()
+            .modify(|r, w| unsafe { w.bits(r.bits() & !(0x1)) });
 
         let clock_config = I2cClockConfig {
             source: I2cClock::BusClk,
@@ -168,6 +223,174 @@ impl I2C0 {
             .i2c0_clkdiv()
             .write(|w| unsafe { w.bits(clock_config.divider as u32) });
 
+        // reminder: analog glitch filter
+        //
+
+        // reset controller transfer
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_cctr()
+            .write(|w| unsafe { w.bits(0x0) });
+
+        result.set_timer_period(7);
+
+        // set tx threshold
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_cfifoctl()
+            .modify(|r, w| unsafe {
+                const I2C_MFIFOCTL_TXTRIG_MASK: u32 = 0x00000007;
+                update_reg!(
+                    r,
+                    w,
+                    I2cTxFifoLevel::LevelEmpty as u32,
+                    I2C_MFIFOCTL_TXTRIG_MASK
+                )
+            });
+        // set rx threshold
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_cfifoctl()
+            .modify(|r, w| unsafe {
+                const I2C_MFIFOCTL_RXTRIG_MASK: u32 = 0x00000700;
+                update_reg!(
+                    r,
+                    w,
+                    I2cRxFifoLevel::Level1 as u32,
+                    I2C_MFIFOCTL_RXTRIG_MASK
+                )
+            });
+
+        // enable controller clock streching
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_ccr()
+            .modify(|r, w| unsafe {
+                const I2C_MCR_CLKSTRETCH_ENABLE: u32 = 0x4;
+                w.bits(r.bits() | I2C_MCR_CLKSTRETCH_ENABLE)
+            });
+
+        // Enable I2C
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_ccr()
+            .modify(|r, w| unsafe {
+                const I2C_MCR_ACTIVE_ENABLE: u32 = 0x1;
+                w.bits(r.bits() | I2C_MCR_ACTIVE_ENABLE)
+            });
+
         result
     }
+
+    #[inline(always)]
+    fn get_controller_status(&self) -> u32 {
+        self._i2c.i2c0_controller(0).i2c0_csr().read().bits()
+    }
+
+    #[inline(always)]
+    fn is_controller_idle(&self) -> bool {
+        const IDLE_MASK: u32 = 0x00000020;
+        (self.get_controller_status() & IDLE_MASK) == 0
+    }
+
+    #[inline(always)]
+    fn is_tx_fifo_full(&self) -> bool {
+        const I2C_MFIFOSR_TXFIFOCNT_MASK: u32 = 0x00000F00;
+        (self._i2c.i2c0_controller(0).i2c0_cfifosr().read().bits()
+            & I2C_MFIFOSR_TXFIFOCNT_MASK)
+            == 0
+    }
+
+    fn transmit_byte(&mut self, byte: u8) {
+        self._i2c
+            .i2c0_controller(0)
+            .i2c0_ctxdata()
+            .write(|w| unsafe { w.bits(byte as u32) });
+    }
+
+    fn fill_tx_fifo(&mut self, buffer: &str) -> usize {
+        for (i, c) in buffer.chars().enumerate() {
+            if !self.is_tx_fifo_full() {
+                self.transmit_byte(c as u8);
+            } else {
+                return i;
+            }
+        }
+        buffer.len()
+    }
+
+    fn start_tranfer(
+        &mut self,
+        target_addr: u32,
+        direction: I2cControllerDirction,
+        length: usize,
+    ) {
+        const I2C_MSA_SADDR_OFS: u32 = 1;
+        const I2C_MSA_SADDR_MASK: u32 = 0x000007FE;
+        const I2C_MSA_DIR_MASK: u32 = 0x00000001;
+        self._i2c
+            .i2c0_controller(0)
+            .i2c0_csa()
+            .modify(|r, w| unsafe {
+                update_reg!(
+                    r,
+                    w,
+                    (target_addr << I2C_MSA_SADDR_OFS) | direction as u32,
+                    (I2C_MSA_SADDR_MASK | I2C_MSA_DIR_MASK)
+                )
+            });
+
+        const I2C_MCTR_MBLEN_OFS: u32 = 16;
+        const I2C_MCTR_BURSTRUN_ENABLE: u32 = 1;
+        const I2C_MCTR_START_ENABLE: u32 = 2;
+        const I2C_MCTR_STOP_ENABLE: u32 = 4;
+        const I2C_MCTR_MBLEN_MASK: u32 = 0x0FFF0000;
+        const I2C_MCTR_BURSTRUN_MASK: u32 = 0x00000001;
+        const I2C_MCTR_START_MASK: u32 = 0x00000002;
+        const I2C_MCTR_STOP_MASK: u32 = 0x00000004;
+
+        self._i2c
+            .i2c0_controller(0)
+            .i2c0_cctr()
+            .modify(|r, w| unsafe {
+                update_reg!(
+                    r,
+                    w,
+                    ((length as u32) << I2C_MCTR_MBLEN_OFS)
+                        | I2C_MCTR_BURSTRUN_ENABLE
+                        | I2C_MCTR_START_ENABLE
+                        | I2C_MCTR_STOP_ENABLE,
+                    (I2C_MCTR_MBLEN_MASK
+                        | I2C_MCTR_BURSTRUN_MASK
+                        | I2C_MCTR_START_MASK
+                        | I2C_MCTR_STOP_MASK)
+                )
+            });
+    }
+}
+
+#[repr(u32)]
+pub enum I2cControllerDirction {
+    Transmit = 0,
+    Recieve = 1,
+}
+pub trait Controller {
+    fn new(i2c: pac::I2c0) -> Self;
+    fn is_controller_idle(&self) -> bool;
+    fn get_controller_status(&self) -> u32;
+    fn is_tx_fifo_full(&self) -> bool;
+    fn fill_tx_fifo(&mut self, buffer: &str) -> usize;
+    fn transmit_byte(&mut self, byte: u8);
+
+    fn start_tranfer(
+        &mut self,
+        target_addr: u32,
+        direction: I2cControllerDirction,
+        length: usize,
+    );
 }

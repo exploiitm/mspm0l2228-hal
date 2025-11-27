@@ -8,15 +8,10 @@ mod clk_config;
 mod fifo_config;
 mod oversampling_config;
 mod uart_config;
+use crate::utils::update_reg;
 
 pub struct Uart0 {
     _uart: pac::Uart0,
-}
-
-macro_rules! update_reg {
-    ($r:ident, $w:ident, $threshold:expr, $mask:expr) => {
-        $w.bits(($r.bits() & !($mask)) | (($threshold) & ($mask)))
-    };
 }
 
 impl Uart0 {

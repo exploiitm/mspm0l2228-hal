@@ -4,5 +4,6 @@ pub mod gpio;
 pub mod i2c;
 pub mod trng;
 pub mod uart;
+mod utils;
 
 pub use test_pack as pac;
