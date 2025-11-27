@@ -214,16 +214,20 @@ impl Uart0 {
             update_reg!(r, w, threshold as u32, UART_IFLS_TXIFLSEL_MASK)
         });
     }
+}
 
-    #[inline(always)]
-    fn is_txfifo_full(&self) -> bool {
-        const UART_STAT_TXFF_MASK: u32 = 0x00000080;
-        const UART_STAT_TXFF_SET: u32 = 0x00000080;
+pub trait UartRead {
+    fn is_rxfifo_empty(self: &Self) -> bool;
+    fn read_byte_blocking(self: &Self) -> u8;
+    fn read_byte(self: &Self) -> Option<u8>;
+}
 
-        (self._uart.uart0_stat().read().bits() & UART_STAT_TXFF_MASK)
-            == UART_STAT_TXFF_SET
-    }
+pub trait UartWrite {
+    fn is_txfifo_full(self: &Self) -> bool;
+    fn write_byte(self: &mut Self, data: u8);
+}
 
+impl UartRead for Uart0 {
     #[inline(always)]
     fn is_rxfifo_empty(&self) -> bool {
         const UART_STAT_RXFE_MASK: u32 = 0x00000004;
@@ -233,21 +237,14 @@ impl Uart0 {
             == UART_STAT_RXFE_SET
     }
 
-    pub fn transmit(&mut self, data: u8) {
-        while self.is_txfifo_full() {}
-        self._uart
-            .uart0_txdata()
-            .write(|w| unsafe { w.bits(data as u32) });
-    }
-
-    pub fn read_byte_blocking(&self) -> u8 {
+    fn read_byte_blocking(&self) -> u8 {
         const UART_RXDATA_DATA_MASK: u32 = 0x000000FF;
         while self.is_rxfifo_empty() {}
 
         (self._uart.uart0_rxdata().read().bits() & UART_RXDATA_DATA_MASK) as u8
     }
 
-    pub fn read_byte(&self) -> Option<u8> {
+    fn read_byte(&self) -> Option<u8> {
         if self.is_rxfifo_empty() {
             None
         } else {
@@ -257,5 +254,22 @@ impl Uart0 {
                     & UART_RXDATA_DATA_MASK) as u8,
             )
         }
+    }
+}
+
+impl UartWrite for Uart0 {
+    #[inline(always)]
+    fn is_txfifo_full(&self) -> bool {
+        const UART_STAT_TXFF_MASK: u32 = 0x00000080;
+        const UART_STAT_TXFF_SET: u32 = 0x00000080;
+
+        (self._uart.uart0_stat().read().bits() & UART_STAT_TXFF_MASK)
+            == UART_STAT_TXFF_SET
+    }
+    fn write_byte(&mut self, data: u8) {
+        while self.is_txfifo_full() {}
+        self._uart
+            .uart0_txdata()
+            .write(|w| unsafe { w.bits(data as u32) });
     }
 }
