@@ -1,5 +1,6 @@
 #![no_std]
 
+pub mod aes;
 pub mod gpio;
 pub mod i2c;
 pub mod trng;
