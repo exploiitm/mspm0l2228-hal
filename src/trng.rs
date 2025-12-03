@@ -1,3 +1,7 @@
+use chacha20::ChaCha20;
+use chacha20::cipher::{KeyIvInit, StreamCipher};
+use core::error::Error;
+
 pub enum ClockDiv {
     Div1,
     Div2,
@@ -82,13 +86,32 @@ impl Trng {
         // Discard first byte - deterministic
         let _discard: u32 = trng.trng_data_capture().read().bits();
 
-        Ok(Self { _trng: trng })
+        Ok(Self {
+            _trng: trng,
+        })
     }
 
-    pub fn gen_u32(&self) -> u32 {
-        while !self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
+    pub fn trng_gen_u32(&self) -> u32 {
+        while self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
         self._trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         self._trng.trng_data_capture().read().bits()
+    }
+
+    pub fn create_rng(&self) -> Rng{
+        let mut init: [u8; 44] = [0x0; 44];
+
+        for n in 0..11 {
+            let x = self.trng_gen_u32();
+            init[0 + 4 * n] = ((x >> 0x00) & 0xFF) as u8;
+            init[1 + 4 * n] = ((x >> 0x08) & 0xFF) as u8;
+            init[2 + 4 * n] = ((x >> 0x10) & 0xFF) as u8;
+            init[3 + 4 * n] = ((x >> 0x18) & 0xFF) as u8;
+        }
+        let k32: [u8; 32] = init[0..32].try_into().unwrap();
+        let n12: [u8; 12] = init[32..44].try_into().unwrap();
+        Rng {
+            cipher: ChaCha20::new(&k32.into(), &n12.into()),
+        }
     }
 
     fn reset(trng: &crate::pac::Trng) {
@@ -105,4 +128,20 @@ impl Trng {
             w.key_unlock().unlock()
         });
     }
+}
+
+pub struct Rng {
+    cipher: ChaCha20,
+}
+
+impl Rng {
+    pub fn gen_u32(&mut self) -> u32 {
+        let mut buffer: [u8; 4] = [0x0; 4];
+        self.cipher.apply_keystream(&mut buffer);
+        buffer[0] as u32 >> 0x00
+            | buffer[1] as u32>> 0x08
+            | buffer[2] as u32 >> 0x10
+            | buffer[3] as u32 >> 0x18
+    }
+
 }
