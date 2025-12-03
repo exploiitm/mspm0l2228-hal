@@ -14,46 +14,28 @@ pub struct Uart0 {
 
 impl Uart0 {
     fn enable(&mut self) {
-        self._uart
-            .uart0_ctl0()
-            .modify(|r, w| unsafe { w.bits(r.bits() | 0x1) });
+        self._uart.uart0_ctl0().write(|w| w.enable().enable());
     }
     fn disable(&mut self) {
-        self._uart
-            .uart0_ctl0()
-            .modify(|r, w| unsafe { w.bits(r.bits() & !0x1) });
+        self._uart.uart0_ctl0().write(|w| w.enable().disable());
     }
 
     fn init(&mut self) {
         self.disable();
 
         // Set baud-rate divisor
-        const UART_IBRD_DIVINT_MASK: u32 = 0x0000FFFF;
-        const UART_FBRD_DIVFRAC_MASK: u32 = 0x0000003F;
-        const UART_LCRH_BRK_MASK: u32 = 0x00000001;
         let integer_divisor = 208;
         let fractional_divisor = 21;
-        self._uart.uart0_ibrd().modify(|r, w| unsafe {
-            update_reg!(r, w, integer_divisor, UART_IBRD_DIVINT_MASK)
-        });
-        self._uart.uart0_fbrd().modify(|r, w| unsafe {
-            update_reg!(r, w, fractional_divisor, UART_FBRD_DIVFRAC_MASK)
-        });
+        self._uart
+            .uart0_ibrd()
+            .write(|w| unsafe { w.divint().bits(integer_divisor) });
+        self._uart
+            .uart0_fbrd()
+            .write(|w| unsafe { w.divfrac().bits(fractional_divisor) });
         // When updating the baud-rate divisor (UARTIBRD or UARTIFRD),
         // the LCRH register must also be written to (any bit in LCRH can
         // be written to for updating the baud-rate divisor).
-        self._uart.uart0_lcrh().modify(|r, w| unsafe {
-            let value = r.bits() & UART_LCRH_BRK_MASK;
-
-            update_reg!(r, w, value, UART_LCRH_BRK_MASK)
-        });
-
-        const CTL0_RXE_MASK: u32 = 0x0000_0008;
-        const CTL0_TXE_MASK: u32 = 0x0000_0010;
-        const CTL0_MODE_MASK: u32 = 0x0000_0700;
-        const CTL0_RTSEN_MASK: u32 = 0x0000_2000;
-        const CTL0_CTSEN_MASK: u32 = 0x0000_4000;
-        const CTL0_FEN_MASK: u32 = 0x0002_0000;
+        self._uart.uart0_lcrh().write(|w| w.brk().disable());
 
         let config = uart_config::UartConfig {
             mode: uart_config::UartMode::Normal,
@@ -64,41 +46,77 @@ impl Uart0 {
             stop_bits: uart_config::UartStopBits::One,
         };
 
-        self._uart.uart0_ctl0().modify(|r, w| unsafe {
-            update_reg!(
-                r,
-                w,
-                config.mode as u32
-                    | config.direction as u32
-                    | config.flow_control as u32,
-                CTL0_RXE_MASK
-                    | CTL0_TXE_MASK
-                    | CTL0_MODE_MASK
-                    | CTL0_RTSEN_MASK
-                    | CTL0_CTSEN_MASK
-                    | CTL0_FEN_MASK
-            )
+        self._uart.uart0_ctl0().write(|w| {
+            match config.mode {
+                uart_config::UartMode::Normal => w.mode().uart(),
+                uart_config::UartMode::Rs485 => w.mode().rs485(),
+                uart_config::UartMode::IdleLine => w.mode().idleline(),
+                uart_config::UartMode::Addr9Bit => w.mode().addr9bit(),
+                uart_config::UartMode::SmartCard => w.mode().smart(),
+                uart_config::UartMode::Dali => w.mode().dali(),
+            };
+
+            match config.direction {
+                uart_config::UartDirection::Tx => w.txe().enable(),
+                uart_config::UartDirection::Rx => w.rxe().enable(),
+                uart_config::UartDirection::TxRx => {
+                    w.rxe().enable();
+                    w.txe().enable()
+                }
+                uart_config::UartDirection::None => {
+                    w.rxe().disable();
+                    w.txe().disable()
+                }
+            };
+
+            match config.flow_control {
+                uart_config::UartFlowControl::Rts => w.rtsen().enable(),
+                uart_config::UartFlowControl::Cts => w.ctsen().enable(),
+                uart_config::UartFlowControl::RtsCts => {
+                    w.rtsen().enable();
+                    w.ctsen().enable()
+                }
+                uart_config::UartFlowControl::None => {
+                    w.rtsen().disable();
+                    w.ctsen().disable()
+                }
+            }
         });
 
-        const LCRH_PEN_ENABLE: u32 = 0x0000_0002;
-        const LCRH_EPS_MASK: u32 = 0x0000_0004;
-        const LCRH_SPS_MASK: u32 = 0x0000_0040;
-        const LCRH_WLEN_MASK: u32 = 0x0000_0030;
-        const LCRH_STP2_MASK: u32 = 0x0000_0008;
+        self._uart.uart0_lcrh().write(|w| {
+            match config.parity {
+                uart_config::UartParity::Even => {
+                    w.pen().enable();
+                    w.eps().even()
+                }
+                uart_config::UartParity::Odd => {
+                    w.pen().enable();
+                    w.eps().odd()
+                }
+                uart_config::UartParity::StickOne => {
+                    w.pen().enable();
+                    w.sps().enable();
+                    w.eps().odd()
+                }
+                uart_config::UartParity::StickZero => {
+                    w.pen().enable();
+                    w.sps().enable();
+                    w.eps().even()
+                }
+                uart_config::UartParity::None => w.pen().disable(),
+            };
 
-        self._uart.uart0_lcrh().modify(|r, w| unsafe {
-            update_reg!(
-                r,
-                w,
-                (config.parity as u32)
-                    | (config.word_length as u32)
-                    | (config.stop_bits as u32),
-                LCRH_PEN_ENABLE
-                    | LCRH_EPS_MASK
-                    | LCRH_SPS_MASK
-                    | LCRH_WLEN_MASK
-                    | LCRH_STP2_MASK
-            )
+            match config.word_length {
+                uart_config::UartWordLength::Bits5 => w.wlen().databit5(),
+                uart_config::UartWordLength::Bits6 => w.wlen().databit6(),
+                uart_config::UartWordLength::Bits7 => w.wlen().databit7(),
+                uart_config::UartWordLength::Bits8 => w.wlen().databit8(),
+            };
+
+            match config.stop_bits {
+                uart_config::UartStopBits::One => w.stp2().disable(),
+                uart_config::UartStopBits::Two => w.stp2().enable(),
+            }
         });
     }
 
