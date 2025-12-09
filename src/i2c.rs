@@ -453,9 +453,24 @@ impl Controller for I2C0 {
 
 pub trait Target {
     fn new(i2c: pac::I2c0, own_address: u8) -> Self;
+
+    fn is_rx_fifo_empty(&self) -> bool;
+    fn recieve_data(&self) -> u8;
 }
 
 impl Target for I2C0 {
+    fn is_rx_fifo_empty(&self) -> bool {
+        const I2C_SFIFOSR_RXFIFOCNT_MASK: u32 = 0x0000000F;
+        const I2C_SFIFOSR_RXFIFOCNT_MINIMUM: u32 = 0;
+        self._i2c.i2c0_target(0).i2c0_tfifosr().read().bits()
+            & I2C_SFIFOSR_RXFIFOCNT_MASK
+            == I2C_SFIFOSR_RXFIFOCNT_MINIMUM
+    }
+
+    fn recieve_data(&self) -> u8 {
+        (self._i2c.i2c0_target(0).i2c0_trxdata().read().bits() & 0xFF) as u8
+    }
+
     fn new(i2c: pac::I2c0, own_address: u8) -> Self {
         let mut result = Self { _i2c: i2c };
 
