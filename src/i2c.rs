@@ -129,6 +129,29 @@ impl I2C0 {
             .i2c0_ctpr()
             .write(|w| unsafe { w.bits(period as u32) });
     }
+
+    fn reset_peripheral(&mut self) {
+        self._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| unsafe {
+            const I2C_RSTCTL_KEY_UNLOCK_W: u32 = 0xB1000000;
+            const I2C_RSTCTL_RESETSTKYCLR_CLR: u32 = 0x00000002;
+            const I2C_RSTCTL_RESETASSERT_ASSERT: u32 = 0x00000001;
+
+            w.bits(
+                I2C_RSTCTL_KEY_UNLOCK_W
+                    | I2C_RSTCTL_RESETSTKYCLR_CLR
+                    | I2C_RSTCTL_RESETASSERT_ASSERT,
+            )
+        });
+    }
+
+    fn enable_power(&mut self) {
+        self._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| unsafe {
+            const I2C_PWREN_KEY_UNLOCK_W: u32 = 0x26000000;
+            const I2C_PWREN_ENABLE_ENABLE: u32 = 0x00000001;
+
+            w.bits(I2C_PWREN_ENABLE_ENABLE | I2C_PWREN_KEY_UNLOCK_W)
+        });
+    }
 }
 
 #[repr(u32)]
@@ -138,8 +161,6 @@ pub enum I2cControllerDirction {
 }
 pub trait Controller {
     fn new(i2c: pac::I2c0) -> Self;
-    fn enable_power(&mut self);
-    fn reset_peripheral(&mut self);
     fn is_controller_idle(&self) -> bool;
     fn is_controller_busy(&self) -> bool;
     fn is_controller_error(&self) -> bool;
@@ -157,29 +178,6 @@ pub trait Controller {
 }
 
 impl Controller for I2C0 {
-    fn enable_power(&mut self) {
-        self._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| unsafe {
-            const I2C_PWREN_KEY_UNLOCK_W: u32 = 0x26000000;
-            const I2C_PWREN_ENABLE_ENABLE: u32 = 0x00000001;
-
-            w.bits(I2C_PWREN_ENABLE_ENABLE | I2C_PWREN_KEY_UNLOCK_W)
-        });
-    }
-
-    fn reset_peripheral(&mut self) {
-        self._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| unsafe {
-            const I2C_RSTCTL_KEY_UNLOCK_W: u32 = 0xB1000000;
-            const I2C_RSTCTL_RESETSTKYCLR_CLR: u32 = 0x00000002;
-            const I2C_RSTCTL_RESETASSERT_ASSERT: u32 = 0x00000001;
-
-            w.bits(
-                I2C_RSTCTL_KEY_UNLOCK_W
-                    | I2C_RSTCTL_RESETSTKYCLR_CLR
-                    | I2C_RSTCTL_RESETASSERT_ASSERT,
-            )
-        });
-    }
-
     fn new(i2c: pac::I2c0) -> Self {
         let mut result = Self { _i2c: i2c };
 
@@ -341,25 +339,6 @@ impl Controller for I2C0 {
             )
         });
 
-        // result
-        //     ._i2c
-        //     .i2c0_clksel()
-        //     .write(|w| unsafe { w.bits(clock_config.source as u32) });
-        // result
-        //     ._i2c
-        //     .i2c0_clkdiv()
-        //     .write(|w| unsafe { w.bits(clock_config.divider as u32) });
-
-        // enable controller clock streching
-        result
-            ._i2c
-            .i2c0_controller(0)
-            .i2c0_ccr()
-            .modify(|r, w| unsafe {
-                const I2C_MCR_CLKSTRETCH_ENABLE: u32 = 0x4;
-                w.bits(r.bits() | I2C_MCR_CLKSTRETCH_ENABLE)
-            });
-
         // Enable I2C
         result
             ._i2c
@@ -473,5 +452,191 @@ impl Controller for I2C0 {
 }
 
 pub trait Target {
-    fn new(i2c: pac::I2c0) -> Self;
+    fn new(i2c: pac::I2c0, own_address: u8) -> Self;
+}
+
+impl Target for I2C0 {
+    fn new(i2c: pac::I2c0, own_address: u8) -> Self {
+        let mut result = Self { _i2c: i2c };
+
+        result.reset_peripheral();
+        result.enable_power();
+
+        // IOMUX init
+        const SDA_PINCM: usize = 0;
+        const SCL_PINCM: usize = 1;
+        let iomux = unsafe { &*Iomux::ptr() };
+
+        Self::init_peripheral_input_function_features(
+            SDA_PINCM,
+            0x3,
+            GpioInversion::Disable,
+            GpioResistor::None,
+            GpioHysteresis::Disable,
+            GpioWakeup::Disable,
+        );
+        Self::init_peripheral_input_function_features(
+            SCL_PINCM,
+            0x3,
+            GpioInversion::Disable,
+            GpioResistor::None,
+            GpioHysteresis::Disable,
+            GpioWakeup::Disable,
+        );
+
+        const HIZ_ENABLE: u32 = 0x02000000;
+        iomux
+            .iomux_pincm(SDA_PINCM)
+            .modify(|r, w| unsafe { w.bits(r.bits() | HIZ_ENABLE) }); // SDA 
+        iomux
+            .iomux_pincm(SCL_PINCM)
+            .modify(|r, w| unsafe { w.bits(r.bits() | HIZ_ENABLE) }); // SCL 
+
+        let systcl = unsafe { &*pac::Sysctl::ptr() };
+
+        systcl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
+
+        const SYSCTL_SYSOSCCFG_FREQ_MASK: u32 = 3;
+        const DL_SYSCTL_SYSOSC_FREQ_BASE: u32 = 0;
+
+        systcl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                DL_SYSCTL_SYSOSC_FREQ_BASE,
+                SYSCTL_SYSOSCCFG_FREQ_MASK
+            )
+        });
+
+        // Disable HFXT
+        systcl
+            .sysctl_hsclken()
+            .modify(|r, w| unsafe { w.bits(r.bits() & !(0x1)) });
+
+        // Clock Config
+        let clock_config = I2cClockConfig {
+            source: I2cClock::BusClk,
+            divider: I2cClockDivide::Div1,
+        };
+
+        const I2C_CLKSEL_BUSCLK_SEL_MASK: u32 = 8;
+        const I2C_CLKSEL_MFCLK_SEL_MASK: u32 = 4;
+        result._i2c.i2c0_clksel().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                clock_config.source as u32,
+                (I2C_CLKSEL_BUSCLK_SEL_MASK | I2C_CLKSEL_MFCLK_SEL_MASK)
+            )
+        });
+        const I2C_CLKDIV_RATIO_MASK: u32 = 7;
+        result._i2c.i2c0_clkdiv().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                clock_config.divider as u32,
+                I2C_CLKDIV_RATIO_MASK
+            )
+        });
+
+        // analog glitch filter
+        // TODO
+
+        // Configure Target Mode
+
+        const I2C_SOAR_OAR_MASK: u32 = 0x000003FF;
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_toar()
+            .modify(|r, w| unsafe {
+                update_reg!(r, w, own_address as u32, I2C_SOAR_OAR_MASK)
+            });
+
+        // set tx threshold
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_tfifoctl()
+            .modify(|r, w| unsafe {
+                const I2C_MFIFOCTL_TXTRIG_MASK: u32 = 0x00000007;
+                update_reg!(
+                    r,
+                    w,
+                    I2cTxFifoLevel::Level1 as u32,
+                    I2C_MFIFOCTL_TXTRIG_MASK
+                )
+            });
+        // set rx threshold
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_tfifoctl()
+            .modify(|r, w| unsafe {
+                const I2C_MFIFOCTL_RXTRIG_MASK: u32 = 0x00000700;
+                update_reg!(
+                    r,
+                    w,
+                    I2cRxFifoLevel::Level1 as u32,
+                    I2C_MFIFOCTL_RXTRIG_MASK
+                )
+            });
+        // enable target clock streching
+        const I2C_MCR_CLKSTRETCH_ENABLE: u32 = 4;
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_tctr()
+            .modify(|r, w| unsafe {
+                w.bits(r.bits() | I2C_MCR_CLKSTRETCH_ENABLE)
+            });
+
+        // Disable Target Wakeup
+        const I2C_SCTR_SWUEN_MASK: u32 = 0x00000400;
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_tctr()
+            .modify(|r, w| unsafe {
+                w.bits(r.bits() & !(I2C_SCTR_SWUEN_MASK))
+            });
+
+        // Set interrupts
+
+        const DL_I2C_INTERRUPT_TARGET_ARBITRATION_LOST: u32 = 0x40000000;
+        const DL_I2C_TARGET_INTERRUPT_OVERFLOW: u32 = 0x80000000;
+        const DL_I2C_INTERRUPT_TARGET_RXFIFO_OVERFLOW: u32 = 0x20000000;
+        const DL_I2C_INTERRUPT_TARGET_RXFIFO_TRIGGER: u32 = 0x00040000;
+        const DL_I2C_INTERRUPT_TARGET_START: u32 = 0x00400000;
+        const DL_I2C_INTERRUPT_TARGET_STOP: u32 = 0x00800000;
+        const DL_I2C_INTERRUPT_TARGET_TXFIFO_UNDERFLOW: u32 = 0x10000000;
+
+        const INTERRUPT_MASK: u32 = DL_I2C_INTERRUPT_TARGET_ARBITRATION_LOST
+            | DL_I2C_TARGET_INTERRUPT_OVERFLOW
+            | DL_I2C_INTERRUPT_TARGET_RXFIFO_OVERFLOW
+            | DL_I2C_INTERRUPT_TARGET_RXFIFO_TRIGGER
+            | DL_I2C_INTERRUPT_TARGET_START
+            | DL_I2C_INTERRUPT_TARGET_STOP
+            | DL_I2C_INTERRUPT_TARGET_TXFIFO_UNDERFLOW;
+        result
+            ._i2c
+            .i2c0_cpu_int(0)
+            .i2c0_cpu_int_imask()
+            .modify(|r, w| unsafe { w.bits(r.bits() | INTERRUPT_MASK) });
+
+        // Set frequency 400,000 Hz
+        result.set_timer_period(7);
+
+        // enable target
+        const I2C_SCTR_ACTIVE_ENABLE: u32 = 0x00000001;
+        result
+            ._i2c
+            .i2c0_target(0)
+            .i2c0_tctr()
+            .modify(|r, w| unsafe {
+                w.bits(r.bits() | I2C_SCTR_ACTIVE_ENABLE)
+            });
+
+        result
+    }
 }
