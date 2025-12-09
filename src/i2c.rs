@@ -127,12 +127,43 @@ impl I2C0 {
     }
 }
 
-impl Controller for I2C0 {
-    fn new(i2c: pac::I2c0) -> Self {
-        let mut result = Self { _i2c: i2c };
+#[repr(u32)]
+pub enum I2cControllerDirction {
+    Transmit = 0,
+    Recieve = 1,
+}
+pub trait Controller {
+    fn new(i2c: pac::I2c0) -> Self;
+    fn enable_power(&mut self);
+    fn reset_peripheral(&mut self);
+    fn is_controller_idle(&self) -> bool;
+    fn is_controller_busy(&self) -> bool;
+    fn is_controller_error(&self) -> bool;
+    fn get_controller_status(&self) -> u32;
+    fn is_tx_fifo_full(&self) -> bool;
+    fn fill_tx_fifo(&mut self, buffer: &str) -> usize;
+    fn transmit_byte(&mut self, byte: u8);
 
-        // I2C reset:
-        result._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| unsafe {
+    fn start_tranfer(
+        &mut self,
+        target_addr: u32,
+        direction: I2cControllerDirction,
+        length: usize,
+    );
+}
+
+impl Controller for I2C0 {
+    fn enable_power(&mut self) {
+        self._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| unsafe {
+            const I2C_PWREN_KEY_UNLOCK_W: u32 = 0x26000000;
+            const I2C_PWREN_ENABLE_ENABLE: u32 = 0x00000001;
+
+            w.bits(I2C_PWREN_ENABLE_ENABLE | I2C_PWREN_KEY_UNLOCK_W)
+        });
+    }
+
+    fn reset_peripheral(&mut self) {
+        self._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| unsafe {
             const I2C_RSTCTL_KEY_UNLOCK_W: u32 = 0xB1000000;
             const I2C_RSTCTL_RESETSTKYCLR_CLR: u32 = 0x00000002;
             const I2C_RSTCTL_RESETASSERT_ASSERT: u32 = 0x00000001;
@@ -143,14 +174,13 @@ impl Controller for I2C0 {
                     | I2C_RSTCTL_RESETASSERT_ASSERT,
             )
         });
+    }
 
-        // Enable power
-        result._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| unsafe {
-            const I2C_PWREN_KEY_UNLOCK_W: u32 = 0x26000000;
-            const I2C_PWREN_ENABLE_ENABLE: u32 = 0x00000001;
+    fn new(i2c: pac::I2c0) -> Self {
+        let mut result = Self { _i2c: i2c };
 
-            w.bits(I2C_PWREN_ENABLE_ENABLE | I2C_PWREN_KEY_UNLOCK_W)
-        });
+        result.reset_peripheral();
+        result.enable_power();
 
         // IOMUX init
         const SDA_PINCM: usize = 0;
@@ -436,27 +466,4 @@ impl Controller for I2C0 {
                 )
             });
     }
-}
-
-#[repr(u32)]
-pub enum I2cControllerDirction {
-    Transmit = 0,
-    Recieve = 1,
-}
-pub trait Controller {
-    fn new(i2c: pac::I2c0) -> Self;
-    fn is_controller_idle(&self) -> bool;
-    fn is_controller_busy(&self) -> bool;
-    fn is_controller_error(&self) -> bool;
-    fn get_controller_status(&self) -> u32;
-    fn is_tx_fifo_full(&self) -> bool;
-    fn fill_tx_fifo(&mut self, buffer: &str) -> usize;
-    fn transmit_byte(&mut self, byte: u8);
-
-    fn start_tranfer(
-        &mut self,
-        target_addr: u32,
-        direction: I2cControllerDirction,
-        length: usize,
-    );
 }
