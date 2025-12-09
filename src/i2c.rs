@@ -183,49 +183,56 @@ impl Controller for I2C0 {
             .modify(|r, w| unsafe { w.bits(r.bits() | HIZ_ENABLE) }); // SCL 
 
         let systcl = unsafe { &*pac::Sysctl::ptr() };
-        let scb = unsafe { &*pac::SCB::PTR };
-        let scr = scb.scr.read();
-        unsafe { scb.scr.write(scr | 0x4) };
-
-        const SYSCTL_PMODECFG_DSLEEP_STOP: u32 = 0x00000000;
-        systcl
-            .sysctl_pmodecfg()
-            .write(|w| unsafe { w.bits(SYSCTL_PMODECFG_DSLEEP_STOP) });
-        const SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK: u32 = 0x00000100;
-        const SYSCTL_SYSOSCCFG_DISABLESTOP_MASK: u32 = 0x00000200;
-        systcl.sysctl_sysosccfg().modify(|r, w| unsafe {
-            w.bits(
-                r.bits()
-                    & !(SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK
-                        | SYSCTL_SYSOSCCFG_DISABLESTOP_MASK),
-            )
-        });
 
         systcl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
-        systcl
-            .sysctl_sysosccfg()
-            .modify(|r, w| unsafe { update_reg!(r, w, 0, 3) });
+
+        const SYSCTL_SYSOSCCFG_FREQ_MASK: u32 = 3;
+        const DL_SYSCTL_SYSOSC_FREQ_BASE: u32 = 0;
+
+        systcl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                DL_SYSCTL_SYSOSC_FREQ_BASE,
+                SYSCTL_SYSOSCCFG_FREQ_MASK
+            )
+        });
 
         systcl
             .sysctl_hsclken()
             .modify(|r, w| unsafe { w.bits(r.bits() & !(0x1)) });
 
+        // Clock Config
         let clock_config = I2cClockConfig {
             source: I2cClock::BusClk,
             divider: I2cClockDivide::Div1,
         };
-        result
-            ._i2c
-            .i2c0_clksel()
-            .write(|w| unsafe { w.bits(clock_config.source as u32) });
-        result
-            ._i2c
-            .i2c0_clkdiv()
-            .write(|w| unsafe { w.bits(clock_config.divider as u32) });
 
-        // reminder: analog glitch filter
+        const I2C_CLKSEL_BUSCLK_SEL_MASK: u32 = 8;
+        const I2C_CLKSEL_MFCLK_SEL_MASK: u32 = 4;
+        result._i2c.i2c0_clksel().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                clock_config.source as u32,
+                (I2C_CLKSEL_BUSCLK_SEL_MASK | I2C_CLKSEL_MFCLK_SEL_MASK)
+            )
+        });
+        const I2C_CLKDIV_RATIO_MASK: u32 = 7;
+        result._i2c.i2c0_clkdiv().modify(|r, w| unsafe {
+            update_reg!(
+                r,
+                w,
+                clock_config.divider as u32,
+                I2C_CLKDIV_RATIO_MASK
+            )
+        });
+
+        // analog glitch filter
+        // TODO
+
+        // Configure Controller Mode
         //
-
         // reset controller transfer
         result
             ._i2c
@@ -233,8 +240,8 @@ impl Controller for I2C0 {
             .i2c0_cctr()
             .write(|w| unsafe { w.bits(0x0) });
 
+        // Set frequency 400,000 Hz
         result.set_timer_period(7);
-
         // set tx threshold
         result
             ._i2c
@@ -263,6 +270,51 @@ impl Controller for I2C0 {
                     I2C_MFIFOCTL_RXTRIG_MASK
                 )
             });
+
+        // enable controller clock streching
+        const I2C_MCR_CLKSTRETCH_ENABLE: u32 = 4;
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_ccr()
+            .modify(|r, w| unsafe {
+                w.bits(r.bits() | I2C_MCR_CLKSTRETCH_ENABLE)
+            });
+
+        // enable controller
+        const I2C_MCR_ACTIVE_ENABLE: u32 = 4;
+        result
+            ._i2c
+            .i2c0_controller(0)
+            .i2c0_ccr()
+            .modify(|r, w| unsafe { w.bits(r.bits() | I2C_MCR_ACTIVE_ENABLE) });
+
+        let scb = unsafe { &*pac::SCB::PTR };
+        let scr = scb.scr.read();
+        unsafe { scb.scr.write(scr | 0x4) };
+
+        const SYSCTL_PMODECFG_DSLEEP_STOP: u32 = 0x00000000;
+        systcl
+            .sysctl_pmodecfg()
+            .write(|w| unsafe { w.bits(SYSCTL_PMODECFG_DSLEEP_STOP) });
+        const SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK: u32 = 0x00000100;
+        const SYSCTL_SYSOSCCFG_DISABLESTOP_MASK: u32 = 0x00000200;
+        systcl.sysctl_sysosccfg().modify(|r, w| unsafe {
+            w.bits(
+                r.bits()
+                    & !(SYSCTL_SYSOSCCFG_USE4MHZSTOP_MASK
+                        | SYSCTL_SYSOSCCFG_DISABLESTOP_MASK),
+            )
+        });
+
+        // result
+        //     ._i2c
+        //     .i2c0_clksel()
+        //     .write(|w| unsafe { w.bits(clock_config.source as u32) });
+        // result
+        //     ._i2c
+        //     .i2c0_clkdiv()
+        //     .write(|w| unsafe { w.bits(clock_config.divider as u32) });
 
         // enable controller clock streching
         result
@@ -296,6 +348,18 @@ impl Controller for I2C0 {
     fn is_controller_idle(&self) -> bool {
         const IDLE_MASK: u32 = 0x00000020;
         (self.get_controller_status() & IDLE_MASK) == 0
+    }
+
+    #[inline(always)]
+    fn is_controller_busy(&self) -> bool {
+        const BUSY_MASK: u32 = 0x00000001;
+        (self.get_controller_status() & BUSY_MASK) != 0
+    }
+
+    #[inline(always)]
+    fn is_controller_error(&self) -> bool {
+        const ERROR_MASK: u32 = 0x00000002;
+        (self.get_controller_status() & ERROR_MASK) != 0
     }
 
     #[inline(always)]
@@ -382,6 +446,8 @@ pub enum I2cControllerDirction {
 pub trait Controller {
     fn new(i2c: pac::I2c0) -> Self;
     fn is_controller_idle(&self) -> bool;
+    fn is_controller_busy(&self) -> bool;
+    fn is_controller_error(&self) -> bool;
     fn get_controller_status(&self) -> u32;
     fn is_tx_fifo_full(&self) -> bool;
     fn fill_tx_fifo(&mut self, buffer: &str) -> usize;
