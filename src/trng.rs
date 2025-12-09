@@ -1,5 +1,3 @@
-use core::error::Error;
-
 pub enum ClockDiv {
     Div1,
     Div2,
@@ -24,7 +22,6 @@ impl Trng {
         div: ClockDiv,
         decim: u8,
     ) -> Result<Self, TrngInitError> {
-
         Self::reset(&trng);
         Self::enable_power(&trng);
 

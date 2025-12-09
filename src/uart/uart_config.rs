@@ -2,6 +2,7 @@ use crate::uart::fifo_config::RxFifoLevel;
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartPulseWidth {
     Ns5 = 0x0000_0000, // Pulses shorter than 5ns length are filtered
     Ns10 = 0x0000_0200, // Pulses shorter than 10ns length are filtered
@@ -11,6 +12,7 @@ pub enum UartPulseWidth {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartParity {
     Even = 0x0000_0002 | 0x0000_0004, // Enable even parity generation, checks for even number of 1s
     Odd = 0x0000_0002 | 0x0000_0000, // Enable odd parity generation, checks for odd number of 1s
@@ -21,6 +23,7 @@ pub enum UartParity {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartWordLength {
     Bits5 = 0x0000_0000, // Word length is 5 bits
     Bits6 = 0x0000_0010, // Word length is 6 bits
@@ -30,6 +33,7 @@ pub enum UartWordLength {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartMode {
     Normal = 0x0000_0000,    // Normal operation
     Rs485 = 0x0000_0100,     // RS485 mode
@@ -41,6 +45,7 @@ pub enum UartMode {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartStopBits {
     One = 0x0000_0000, // One stop bit
     Two = 0x0000_0008, // Two stop bits
@@ -48,6 +53,7 @@ pub enum UartStopBits {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartDirection {
     Tx = 0x0000_0010,                 // Enable UART transmitter
     Rx = 0x0000_0008,                 // Enable UART receiver
@@ -57,6 +63,7 @@ pub enum UartDirection {
 
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartFlowControl {
     Rts = 0x0000_2000,                  // Enable request-to-send
     Cts = 0x0000_4000,                  // Enable clear-to-send

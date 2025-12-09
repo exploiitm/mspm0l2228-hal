@@ -38,6 +38,7 @@ pub struct I2cClockConfig {
 }
 
 #[repr(u32)]
+#[allow(dead_code)]
 enum I2cTxFifoLevel {
     LevelEmpty,
     Level1,
@@ -50,6 +51,7 @@ enum I2cTxFifoLevel {
 }
 
 #[repr(u32)]
+#[allow(dead_code)]
 enum I2cRxFifoLevel {
     Level1,
     Level2,
@@ -62,22 +64,28 @@ enum I2cRxFifoLevel {
 }
 
 #[repr(u32)]
+#[allow(dead_code)]
 enum GpioInversion {
     Enable = 0x04000000,
     Disable = 0x00000000,
 }
 #[repr(u32)]
+#[allow(dead_code)]
 enum GpioResistor {
     None = 0x0,
     PullUp = 131072,
     PullDown = 65536,
 }
+
 #[repr(u32)]
+#[allow(dead_code)]
 enum GpioHysteresis {
     Enable = 0,
     Disable = 524288,
 }
+
 #[repr(u32)]
+#[allow(dead_code)]
 enum GpioWakeup {
     Enable = 0x08000000,
     Disable = 0x00000000,
@@ -86,10 +94,6 @@ enum GpioWakeup {
 
 pub struct I2C0 {
     _i2c: pac::I2c0,
-}
-
-pub trait Target {
-    fn new(i2c: pac::I2c0) -> Self;
 }
 
 impl I2C0 {
@@ -466,4 +470,8 @@ impl Controller for I2C0 {
                 )
             });
     }
+}
+
+pub trait Target {
+    fn new(i2c: pac::I2c0) -> Self;
 }

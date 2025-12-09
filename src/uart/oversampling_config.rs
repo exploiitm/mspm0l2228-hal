@@ -1,5 +1,6 @@
 #[repr(u32)]
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum UartOversamplingRate {
     Rate16x = 0x0000_0000, // Set oversampling rate to 16x
     Rate8x = 0x0000_8000,  // Set oversampling rate to 8x

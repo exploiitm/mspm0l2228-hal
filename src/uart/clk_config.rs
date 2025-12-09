@@ -1,4 +1,5 @@
 #[repr(u32)]
+#[allow(dead_code)]
 pub enum UartClock {
     /// Selects BUSCLK as the clock source
     BusClk = 0x0000_0008,
@@ -10,6 +11,7 @@ pub enum UartClock {
 
 /// UART clock divide ratio
 #[repr(u32)]
+#[allow(dead_code)]
 pub enum UartClockDivide {
     /// UART source clock divide ratio set to 1
     Div1 = 0,

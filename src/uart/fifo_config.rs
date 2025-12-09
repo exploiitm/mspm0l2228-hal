@@ -1,5 +1,6 @@
 #[repr(u32)]
 #[derive(Clone, Copy, Debug)]
+#[allow(dead_code)]
 pub enum TxFifoLevel {
     /// Interrupt triggers when FIFO ≤ 3/4 empty
     ThreeQuartersEmpty = 0x00000001,
@@ -15,6 +16,7 @@ pub enum TxFifoLevel {
 
 #[repr(u32)]
 #[derive(Clone, Copy, Debug)]
+#[allow(dead_code)]
 pub enum RxFifoLevel {
     /// Interrupt triggers when FIFO ≥ 1 entry available (required for DMA trigger)
     OneEntry = 0x00000070,
