@@ -5,6 +5,7 @@ mod controller;
 mod gpio_utils;
 mod target;
 mod txrx;
+pub use gpio_utils::I2cControllerDirction;
 
 pub struct I2C0 {
     _i2c: pac::I2c0,
