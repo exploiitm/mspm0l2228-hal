@@ -1,5 +1,3 @@
-use crate::uart::fifo_config::RxFifoLevel;
-
 #[repr(u32)]
 #[derive(Copy, Clone)]
 #[allow(dead_code)]

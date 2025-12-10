@@ -80,7 +80,7 @@ macro_rules! gpio {
                     }
 
                     pub fn into_output(&self) -> Pin::<N, Output> {
-                        let mut pin = Pin::<N, Output>::new();
+                        let pin = Pin::<N, Output>::new();
                         pin.enable_output();
                         pin
                     }

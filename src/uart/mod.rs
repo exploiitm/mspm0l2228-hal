@@ -1,8 +1,6 @@
 use crate::pac;
-use core::marker::PhantomData;
 use pac::Iomux;
 use pac::Sysctl;
-use paste::paste;
 
 mod clk_config;
 mod fifo_config;
