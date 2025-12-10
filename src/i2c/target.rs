@@ -9,21 +9,49 @@ use pac::Iomux;
 pub trait Target {
     fn new(i2c: pac::I2c0, iomux: &Iomux, own_address: u8) -> Self;
 
-    fn is_rx_fifo_empty(&self) -> bool;
+    fn is_rxfifo_empty(&self) -> bool;
+    fn is_txfifo_full(&self) -> bool;
+
     fn recieve_data(&self) -> u8;
+    fn transmit_data(&self, val: u8);
+    fn transmit_string(&self, string: &str);
 }
 
 impl Target for I2C0 {
-    fn is_rx_fifo_empty(&self) -> bool {
+    #[inline(always)]
+    fn is_rxfifo_empty(&self) -> bool {
         const I2C_SFIFOSR_RXFIFOCNT_MASK: u32 = 0x0000000F;
         const I2C_SFIFOSR_RXFIFOCNT_MINIMUM: u32 = 0;
         self._i2c.i2c0_target(0).i2c0_tfifosr().read().bits()
             & I2C_SFIFOSR_RXFIFOCNT_MASK
             == I2C_SFIFOSR_RXFIFOCNT_MINIMUM
     }
+    #[inline(always)]
+    fn is_txfifo_full(&self) -> bool {
+        const I2C_SFIFOSR_TXFIFOCNT_MASK: u32 = 0x00000F00;
+        const I2C_SFIFOSR_TXFIFOCNT_MINIMUM: u32 = 0;
+        self._i2c.i2c0_target(0).i2c0_tfifosr().read().bits()
+            & I2C_SFIFOSR_TXFIFOCNT_MASK
+            == I2C_SFIFOSR_TXFIFOCNT_MINIMUM
+    }
 
+    #[inline(always)]
     fn recieve_data(&self) -> u8 {
         (self._i2c.i2c0_target(0).i2c0_trxdata().read().bits() & 0xFF) as u8
+    }
+    #[inline(always)]
+    fn transmit_data(&self, val: u8) {
+        self._i2c
+            .i2c0_target(0)
+            .i2c0_ttxdata()
+            .write(|w| unsafe { w.bits(val as u32) });
+    }
+
+    fn transmit_string(&self, string: &str) {
+        for c in string.bytes() {
+            while self.is_txfifo_full() {}
+            self.transmit_data(c);
+        }
     }
 
     fn new(i2c: pac::I2c0, iomux: &Iomux, own_address: u8) -> Self {

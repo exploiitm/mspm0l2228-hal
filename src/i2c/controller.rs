@@ -12,9 +12,13 @@ pub trait Controller {
     fn is_controller_busy(&self) -> bool;
     fn is_controller_error(&self) -> bool;
     fn get_controller_status(&self) -> u32;
-    fn is_tx_fifo_full(&self) -> bool;
-    fn fill_tx_fifo(&mut self, buffer: &str) -> usize;
+
+    fn is_txfifo_full(&self) -> bool;
+    fn fill_tx_fifo(&mut self, buffer: &str);
     fn transmit_byte(&mut self, byte: u8);
+
+    fn is_rxfifo_empty(&self) -> bool;
+    fn recieve_byte(&self) -> u8;
 
     fn start_tranfer(
         &mut self,
@@ -224,7 +228,7 @@ impl Controller for I2C0 {
     }
 
     #[inline(always)]
-    fn is_tx_fifo_full(&self) -> bool {
+    fn is_txfifo_full(&self) -> bool {
         const I2C_MFIFOSR_TXFIFOCNT_MASK: u32 = 0x00000F00;
         (self._i2c.i2c0_controller(0).i2c0_cfifosr().read().bits()
             & I2C_MFIFOSR_TXFIFOCNT_MASK)
@@ -238,15 +242,11 @@ impl Controller for I2C0 {
             .write(|w| unsafe { w.bits(byte as u32) });
     }
 
-    fn fill_tx_fifo(&mut self, buffer: &str) -> usize {
-        for (i, c) in buffer.chars().enumerate() {
-            if !self.is_tx_fifo_full() {
-                self.transmit_byte(c as u8);
-            } else {
-                return i;
-            }
+    fn fill_tx_fifo(&mut self, buffer: &str) {
+        for c in buffer.bytes() {
+            while self.is_txfifo_full() {}
+            self.transmit_byte(c);
         }
-        buffer.len()
     }
 
     fn start_tranfer(
@@ -296,5 +296,18 @@ impl Controller for I2C0 {
                         | I2C_MCTR_STOP_MASK)
                 )
             });
+    }
+
+    #[inline(always)]
+    fn is_rxfifo_empty(&self) -> bool {
+        const I2C_MFIFOSR_RXFIFOCNT_MASK: u32 = 0xF;
+        const I2C_MFIFOSR_RXFIFOCNT_MINIMUM: u32 = 0x0;
+        self._i2c.i2c0_controller(0).i2c0_cfifosr().read().bits()
+            & I2C_MFIFOSR_RXFIFOCNT_MASK
+            == I2C_MFIFOSR_RXFIFOCNT_MINIMUM
+    }
+
+    fn recieve_byte(&self) -> u8 {
+        (self._i2c.i2c0_controller(0).i2c0_crxdata().read().bits() & 0xFF) as u8
     }
 }
