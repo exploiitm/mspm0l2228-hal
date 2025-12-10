@@ -86,18 +86,16 @@ impl Trng {
         // Discard first byte - deterministic
         let _discard: u32 = trng.trng_data_capture().read().bits();
 
-        Ok(Self {
-            _trng: trng,
-        })
+        Ok(Self { _trng: trng })
     }
 
     pub fn trng_gen_u32(&self) -> u32 {
-        while self._trng.trng_mis().read().irq_captured_rdy().is_set() {}
+        while self._trng.trng_mis().read().irq_captured_rdy().is_clr() {}
         self._trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         self._trng.trng_data_capture().read().bits()
     }
 
-    pub fn create_rng(&self) -> Rng{
+    pub fn create_rng(&self) -> Rng {
         let mut init: [u8; 44] = [0x0; 44];
 
         for n in 0..11 {
@@ -139,9 +137,8 @@ impl Rng {
         let mut buffer: [u8; 4] = [0x0; 4];
         self.cipher.apply_keystream(&mut buffer);
         buffer[0] as u32 >> 0x00
-            | buffer[1] as u32>> 0x08
+            | buffer[1] as u32 >> 0x08
             | buffer[2] as u32 >> 0x10
             | buffer[3] as u32 >> 0x18
     }
-
 }
