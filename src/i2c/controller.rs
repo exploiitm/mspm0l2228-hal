@@ -14,7 +14,7 @@ pub trait Controller {
     fn get_controller_status(&self) -> u32;
 
     fn is_txfifo_full(&self) -> bool;
-    fn fill_tx_fifo(&mut self, buffer: &str);
+    fn fill_txfifo(&mut self, buffer: &str);
     fn transmit_byte(&mut self, byte: u8);
 
     fn is_rxfifo_empty(&self) -> bool;
@@ -242,7 +242,7 @@ impl Controller for I2C0 {
             .write(|w| unsafe { w.bits(byte as u32) });
     }
 
-    fn fill_tx_fifo(&mut self, buffer: &str) {
+    fn fill_txfifo(&mut self, buffer: &str) {
         for c in buffer.bytes() {
             while self.is_txfifo_full() {}
             self.transmit_byte(c);
