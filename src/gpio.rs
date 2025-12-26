@@ -31,6 +31,8 @@ macro_rules! gpio {
                 use crate::pac::Iomux as Iomux;
                 use super::{OutputPin, ErrorType, Input, Output, PinMode};
                 use super::PhantomData;
+                use core::convert::Infallible;
+
 
 
                 pub struct Pin<const N: u8, MODE: PinMode = Input> {
@@ -93,33 +95,35 @@ macro_rules! gpio {
                 }
 
                 impl<const N: u8> Pin<N, Output> {
-                    pub fn set_low(&mut self) {
+                    fn write_low(&mut self) {
                         let gpio = unsafe { &*$GPIO_PAC::ptr() };
                         gpio.[<gpio $GPIO_PORT _ doutclr31_0>]().write(|w|
                             unsafe { w.bits(1 << N) });
                     }
-                    pub fn set_high(&mut self) {
+                    fn write_high(&mut self) {
                         let gpio = unsafe { &*$GPIO_PAC::ptr() };
                         gpio.[<gpio $GPIO_PORT _ doutset31_0>]().write(|w|
                             unsafe { w.bits(1 << N) });
+                    }
+                    pub fn set_low(&mut self) {
+                        self.write_low();
+                    }
+                    pub fn set_high(&mut self) {
+                        self.write_high();
                     }
                 }
 
                 impl<const N: u8, MODE: PinMode> ErrorType for Pin<N, MODE> {
-                    type Error = core::convert::Infallible;
+                    type Error = Infallible;
                 }
 
                 impl<const N: u8> OutputPin for Pin<N, Output> {
                     fn set_low(&mut self) -> Result<(), Self::Error> {
-                        let gpio = unsafe { &*$GPIO_PAC::ptr() };
-                        gpio.[<gpio $GPIO_PORT _ doutclr31_0>]().write(|w|
-                            unsafe { w.bits(1 << N) });
+                        self.write_low();
                         Ok(())
                     }
                     fn set_high(&mut self)-> Result<(), Self::Error>  {
-                        let gpio = unsafe { &*$GPIO_PAC::ptr() };
-                        gpio.[<gpio $GPIO_PORT _ doutset31_0>]().write(|w|
-                            unsafe { w.bits(1 << N) });
+                        self.write_high();
                         Ok(())
                     }
                 }
@@ -181,4 +185,4 @@ gpio!(
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
     ]
 );
-gpio!(c, 2, Gpioc, [0, 1, 2, 3]);
+gpio!(c, 2, Gpioc, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
