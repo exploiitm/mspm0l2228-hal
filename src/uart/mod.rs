@@ -1,52 +1,67 @@
 use crate::pac;
-use pac::Iomux;
-use pac::Sysctl;
-
-mod clk_config;
-mod fifo_config;
-mod oversampling_config;
 mod uart_config;
-use crate::utils::update_reg;
 
 pub struct Uart0 {
     _uart: pac::Uart0,
 }
 
 impl Uart0 {
-    fn enable(&mut self) {
-        self._uart.uart0_ctl0().write(|w| w.enable().enable());
-    }
-    fn disable(&mut self) {
-        self._uart.uart0_ctl0().write(|w| w.enable().disable());
+    pub fn new(uart: pac::Uart0, iomux: &pac::Iomux) -> Self {
+        iomux.iomux_pincm(24).write(|w| {
+            unsafe { w.pf().bits(0x2) }; // UART peripheral selection
+            w.pc().connected()
+        });
+
+        iomux.iomux_pincm(25).write(|w| {
+            unsafe { w.pf().bits(0x2) }; // UART peripheral selection
+            w.inena().enable();
+            w.pc().connected()
+        });
+
+        Self::reset(&uart);
+        Self::pwren(&uart);
+        Self::init(&uart);
+        Self::enable(&uart);
+
+        Self { _uart: uart }
     }
 
-    fn init(&mut self) {
-        self.disable();
+    fn init(uart: &pac::Uart0) {
+        Self::disable(&uart);
+
+        let config = uart_config::UartConfig::default();
+
+        uart.uart0_clksel()
+            .write(|w| match config.clock_config.source {
+                uart_config::UartClock::LfClk => w.lfclk_sel().enable(),
+                uart_config::UartClock::MfClk => w.mfclk_sel().enable(),
+                uart_config::UartClock::BusClk => w.busclk_sel().enable(),
+            });
+
+        uart.uart0_clkdiv()
+            .write(|w| match config.clock_config.divider {
+                uart_config::UartClockDivide::Div1 => w.ratio().div_by_1(),
+                uart_config::UartClockDivide::Div2 => w.ratio().div_by_2(),
+                uart_config::UartClockDivide::Div3 => w.ratio().div_by_3(),
+                uart_config::UartClockDivide::Div4 => w.ratio().div_by_4(),
+                uart_config::UartClockDivide::Div5 => w.ratio().div_by_5(),
+                uart_config::UartClockDivide::Div6 => w.ratio().div_by_6(),
+                uart_config::UartClockDivide::Div7 => w.ratio().div_by_7(),
+                uart_config::UartClockDivide::Div8 => w.ratio().div_by_8(),
+            });
 
         // Set baud-rate divisor
-        let integer_divisor = 208;
-        let fractional_divisor = 21;
-        self._uart
-            .uart0_ibrd()
-            .write(|w| unsafe { w.divint().bits(integer_divisor) });
-        self._uart
-            .uart0_fbrd()
-            .write(|w| unsafe { w.divfrac().bits(fractional_divisor) });
+        uart.uart0_ibrd()
+            .write(|w| unsafe { w.divint().bits(config.integer_divisor) });
+        uart.uart0_fbrd()
+            .write(|w| unsafe { w.divfrac().bits(config.fractional_divisor) });
+
         // When updating the baud-rate divisor (UARTIBRD or UARTIFRD),
         // the LCRH register must also be written to (any bit in LCRH can
         // be written to for updating the baud-rate divisor).
-        self._uart.uart0_lcrh().write(|w| w.brk().disable());
+        uart.uart0_lcrh().write(|w| w.brk().disable());
 
-        let config = uart_config::UartConfig {
-            mode: uart_config::UartMode::Normal,
-            direction: uart_config::UartDirection::TxRx,
-            flow_control: uart_config::UartFlowControl::None,
-            parity: uart_config::UartParity::None,
-            word_length: uart_config::UartWordLength::Bits8,
-            stop_bits: uart_config::UartStopBits::One,
-        };
-
-        self._uart.uart0_ctl0().write(|w| {
+        uart.uart0_ctl0().write(|w| {
             match config.mode {
                 uart_config::UartMode::Normal => w.mode().uart(),
                 uart_config::UartMode::Rs485 => w.mode().rs485(),
@@ -80,10 +95,21 @@ impl Uart0 {
                     w.rtsen().disable();
                     w.ctsen().disable()
                 }
+            };
+
+            match config.enable_fifo {
+                false => w.fen().disable(),
+                true => w.fen().enable(),
+            };
+
+            match config.oversampling_rate {
+                uart_config::UartOversamplingRate::Rate16x => w.hse().ovs16(),
+                uart_config::UartOversamplingRate::Rate8x => w.hse().ovs8(),
+                uart_config::UartOversamplingRate::Rate3x => w.hse().ovs3(),
             }
         });
 
-        self._uart.uart0_lcrh().write(|w| {
+        uart.uart0_lcrh().write(|w| {
             match config.parity {
                 uart_config::UartParity::Even => {
                     w.pen().enable();
@@ -118,111 +144,52 @@ impl Uart0 {
                 uart_config::UartStopBits::Two => w.stp2().enable(),
             }
         });
-    }
 
-    pub fn new(uart: pac::Uart0) -> Self {
-        let mut result = Self { _uart: uart };
+        uart.uart0_ifls().write(|w| {
+            match config.rxfifo_level {
+                uart_config::RxFifoLevel::OneEntry => w.rxiflsel().lvl_1(),
+                uart_config::RxFifoLevel::Full => w.rxiflsel().lvl_full(),
+                uart_config::RxFifoLevel::ThreeQuartersFull => {
+                    w.rxiflsel().lvl_3_4()
+                }
+                uart_config::RxFifoLevel::HalfFull => w.rxiflsel().lvl_1_2(),
+                uart_config::RxFifoLevel::QuarterFull => w.rxiflsel().lvl_1_4(),
+            };
 
-        let iomux = unsafe { &*Iomux::ptr() };
-        iomux
-            .iomux_pincm(24)
-            .write(|w| unsafe { w.bits(0x80 | 0x2) });
-        iomux
-            .iomux_pincm(25)
-            .write(|w| unsafe { w.bits(0x80 | 0x2 | 0x0004_0000) });
-
-        // Reset
-        const RSTCTL_KEY_UNLOCK: u32 = 0xB100_0000;
-        const RSTCTL_STKYCLR: u32 = 0x0000_0002;
-        const RSTCTL_ASSERT: u32 = 0x0000_0001;
-
-        result
-            ._uart
-            .uart0_gprcm(0)
-            .uart0_rstctl()
-            .write(|w| unsafe {
-                w.bits(RSTCTL_KEY_UNLOCK | RSTCTL_STKYCLR | RSTCTL_ASSERT)
-            });
-
-        // Enable power
-        const PWREN_KEY_UNLOCK: u32 = 0x2600_0000;
-        const PWREN_ENABLE: u32 = 0x0000_0001;
-
-        result
-            ._uart
-            .uart0_gprcm(0)
-            .uart0_pwren()
-            .write(|w| unsafe { w.bits(PWREN_KEY_UNLOCK | PWREN_ENABLE) });
-
-        // set clock config
-        let clock_config = clk_config::UartClockConfig {
-            source: clk_config::UartClock::BusClk,
-            divider: clk_config::UartClockDivide::Div1,
-        };
-
-        result
-            ._uart
-            .uart0_clksel()
-            .write(|w| unsafe { w.bits(clock_config.source as u32) });
-        result
-            ._uart
-            .uart0_clkdiv()
-            .write(|w| unsafe { w.bits(clock_config.divider as u32) });
-
-        // Disable UART
-        // Also set baud-rate
-        result.init();
-
-        // Set oversampling rate
-        const CTL0_HSE_MASK: u32 = 0x0001_8000;
-        let rate = oversampling_config::UartOversamplingRate::Rate16x;
-        result._uart.uart0_ctl0().modify(|r, w| unsafe {
-            update_reg!(r, w, rate as u32, CTL0_HSE_MASK)
-        });
-
-        // Enable FIFOs
-        const UART_CTL0_FEN_ENABLE: u32 = 0x0002_0000;
-
-        result._uart.uart0_ctl0().modify(|r, w| unsafe {
-            let val = r.bits();
-
-            w.bits(val | UART_CTL0_FEN_ENABLE)
-        });
-
-        let threshold = fifo_config::RxFifoLevel::Full;
-        result.set_rx_fifo_threshold(threshold);
-        let threshold = fifo_config::TxFifoLevel::Empty;
-        result.set_tx_fifo_threshold(threshold);
-
-        let sysctl = unsafe { &*Sysctl::ptr() };
-        sysctl.sysctl_borthreshold().write(|w| unsafe { w.bits(0) });
-        // SYSCTL.soc_lock.bor_threshold = 0;
-
-        sysctl
-            .sysctl_sysosccfg()
-            .modify(|r, w| unsafe { w.bits((r.bits() & !(0x3)) | (0 & 0x3)) });
-        // update_reg(&mut SYSCTL.soc_lock.sysosc_cfg, 0, 0x3);
-        // SYSCTL.soc_lock.hsclk_en &= !(1 as u32);
-        sysctl
-            .sysctl_hsclken()
-            .modify(|r, w| unsafe { w.bits(r.bits() & !(1 as u32)) });
-
-        result.enable();
-
-        result
-    }
-
-    fn set_rx_fifo_threshold(&mut self, threshold: fifo_config::RxFifoLevel) {
-        const UART_IFLS_RXIFLSEL_MASK: u32 = 0x0000_0070;
-        self._uart.uart0_ifls().modify(|r, w| unsafe {
-            update_reg!(r, w, threshold as u32, UART_IFLS_RXIFLSEL_MASK)
+            match config.txfifo_level {
+                uart_config::TxFifoLevel::OneEntry => w.txiflsel().lvl_1(),
+                uart_config::TxFifoLevel::Empty => w.txiflsel().lvl_empty(),
+                uart_config::TxFifoLevel::ThreeQuartersEmpty => {
+                    w.txiflsel().lvl_3_4()
+                }
+                uart_config::TxFifoLevel::HalfEmpty => w.txiflsel().lvl_1_2(),
+                uart_config::TxFifoLevel::QuarterEmpty => {
+                    w.txiflsel().lvl_1_4()
+                }
+            }
         });
     }
 
-    fn set_tx_fifo_threshold(&mut self, threshold: fifo_config::TxFifoLevel) {
-        const UART_IFLS_TXIFLSEL_MASK: u32 = 0x0000_0007;
-        self._uart.uart0_ifls().modify(|r, w| unsafe {
-            update_reg!(r, w, threshold as u32, UART_IFLS_TXIFLSEL_MASK)
+    fn enable(uart: &pac::Uart0) {
+        uart.uart0_ctl0().modify(|_, w| w.enable().enable());
+    }
+
+    fn disable(uart: &pac::Uart0) {
+        uart.uart0_ctl0().write(|w| w.enable().disable());
+    }
+
+    fn reset(uart: &pac::Uart0) {
+        uart.uart0_gprcm(0).uart0_rstctl().write(|w| {
+            w.resetassert().assert();
+            w.resetstkyclr().clr();
+            w.key_unlock().unlock()
+        });
+    }
+
+    fn pwren(uart: &pac::Uart0) {
+        uart.uart0_gprcm(0).uart0_pwren().write(|w| {
+            w.enable().enable();
+            w.key_unlock().unlock()
         });
     }
 }
@@ -235,7 +202,7 @@ pub trait UartRead {
 
 pub trait UartWrite {
     fn is_txfifo_full(self: &Self) -> bool;
-    fn write_byte(self: &mut Self, data: u8);
+    fn write_byte(self: &Self, data: u8);
 }
 
 impl UartRead for Uart0 {
@@ -277,7 +244,7 @@ impl UartWrite for Uart0 {
         (self._uart.uart0_stat().read().bits() & UART_STAT_TXFF_MASK)
             == UART_STAT_TXFF_SET
     }
-    fn write_byte(&mut self, data: u8) {
+    fn write_byte(&self, data: u8) {
         while self.is_txfifo_full() {}
         self._uart
             .uart0_txdata()

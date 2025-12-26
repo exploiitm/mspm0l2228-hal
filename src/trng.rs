@@ -1,6 +1,5 @@
 use chacha20::ChaCha20;
 use chacha20::cipher::{KeyIvInit, StreamCipher};
-use core::error::Error;
 
 pub enum ClockDiv {
     Div1,
