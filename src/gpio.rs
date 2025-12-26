@@ -72,7 +72,13 @@ macro_rules! gpio {
 
                                             _ => panic!("What is this pin??")
                                         }) as usize - 1,
-                            "c" => 0,
+                            "c" =>  (match N {
+                                            0| 1| 2| 3| 4| 5 => N+43,
+                                            6| 7| 8| 9       => N+52,
+
+                                            _ => panic!("What is this pin??")
+
+                                        }) as usize - 1,
                             _ => panic!("Unknown GPIO Port")
                             };
                         iomux.iomux_pincm(pincm).write(|w| unsafe { w.bits(0x80 | 0x1) });
