@@ -8,8 +8,8 @@ This crate uses the PAC in [exploiitm/pac](https://github.com/exploiitm/mspm0l22
 ## Example Usage
 
 1. Build OpenOCD from source
-	> [!IMPORTANT] 
-	> At the time of writing this README the release version of OpenOCD does not have the patch for mspm0
+> [!IMPORTANT] 
+> At the time of writing this README the release version of OpenOCD does not have the patch for mspm0
 
 
 3. Install `arm-none-eabi-objcopy`
