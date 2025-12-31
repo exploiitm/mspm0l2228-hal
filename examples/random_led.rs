@@ -37,7 +37,8 @@ fn main() -> ! {
     let mut green_led = gpiob_pins.pin9.into_output();
 
     blue_led.set_high();
-    let trng = mspm0l2228_hal::trng::Trng::new(p.trng, trng::ClockDiv::Div2, 0x3);
+    let trng =
+        mspm0l2228_hal::trng::Trng::new(p.trng, trng::ClockDiv::Div2, 0x3);
     blue_led.set_low();
 
     match trng {
