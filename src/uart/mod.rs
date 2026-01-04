@@ -251,3 +251,18 @@ impl UartWrite for Uart0 {
             .write(|w| unsafe { w.bits(data as u32) });
     }
 }
+
+use core::fmt::Write;
+impl Write for Uart0 {
+    fn write_char(&mut self, c: char) -> core::fmt::Result {
+        self.write_byte(c as u8);
+        Ok(())
+    }
+
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        for c in s.chars() {
+            self.write_byte(c as u8);
+        }
+        Ok(())
+    }
+}
