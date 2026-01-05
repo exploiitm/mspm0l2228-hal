@@ -7,5 +7,5 @@ edition = "2024"
 paste = "1.0.0"
 embedded-hal = "1.0.0"
 
-test_pack = { path = "../test-pack" }
+test_pack = { path = "../mspm0l2228-pac" }
 chacha20 = "0.9.1"
