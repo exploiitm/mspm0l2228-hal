@@ -69,7 +69,7 @@ impl Trng {
 
         trng.trng_iclr().write(|w| w.irq_captured_rdy().clr());
         trng.trng_ctl()
-            .write(|w| unsafe { w.decim_rate().bits(0x7 & decim) });
+            .modify(|_, w| unsafe { w.decim_rate().bits(0x7 & decim) });
 
         trng.trng_imask().write(|w| {
             w.irq_health_fail().enabled();
