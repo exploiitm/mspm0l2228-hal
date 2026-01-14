@@ -1,0 +1,84 @@
+#[doc = "Register `TIMG0_CCLKCTL` reader"]
+pub type R = crate::R<Timg0CclkctlSpec>;
+#[doc = "Register `TIMG0_CCLKCTL` writer"]
+pub type W = crate::W<Timg0CclkctlSpec>;
+#[doc = "Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock.\n\nValue on reset: 0"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Clken {
+    #[doc = "0: Clock is disabled."]
+    Disabled = 0,
+    #[doc = "1: Clock is enabled"]
+    Enabled = 1,
+}
+impl From<Clken> for bool {
+    #[inline(always)]
+    fn from(variant: Clken) -> Self {
+        variant as u8 != 0
+    }
+}
+#[doc = "Field `CLKEN` reader - Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock."]
+pub type ClkenR = crate::BitReader<Clken>;
+impl ClkenR {
+    #[doc = "Get enumerated values variant"]
+    #[inline(always)]
+    pub const fn variant(&self) -> Clken {
+        match self.bits {
+            false => Clken::Disabled,
+            true => Clken::Enabled,
+        }
+    }
+    #[doc = "Clock is disabled."]
+    #[inline(always)]
+    pub fn is_disabled(&self) -> bool {
+        *self == Clken::Disabled
+    }
+    #[doc = "Clock is enabled"]
+    #[inline(always)]
+    pub fn is_enabled(&self) -> bool {
+        *self == Clken::Enabled
+    }
+}
+#[doc = "Field `CLKEN` writer - Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock."]
+pub type ClkenW<'a, REG> = crate::BitWriter<'a, REG, Clken>;
+impl<'a, REG> ClkenW<'a, REG>
+where
+    REG: crate::Writable + crate::RegisterSpec,
+{
+    #[doc = "Clock is disabled."]
+    #[inline(always)]
+    pub fn disabled(self) -> &'a mut crate::W<REG> {
+        self.variant(Clken::Disabled)
+    }
+    #[doc = "Clock is enabled"]
+    #[inline(always)]
+    pub fn enabled(self) -> &'a mut crate::W<REG> {
+        self.variant(Clken::Enabled)
+    }
+}
+impl R {
+    #[doc = "Bit 0 - Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock."]
+    #[inline(always)]
+    pub fn clken(&self) -> ClkenR {
+        ClkenR::new((self.bits & 1) != 0)
+    }
+}
+impl W {
+    #[doc = "Bit 0 - Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock."]
+    #[inline(always)]
+    pub fn clken(&mut self) -> ClkenW<'_, Timg0CclkctlSpec> {
+        ClkenW::new(self, 0)
+    }
+}
+#[doc = "Counter Clock Control Register\n\nYou can [`read`](crate::Reg::read) this register and get [`timg0_cclkctl::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`timg0_cclkctl::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct Timg0CclkctlSpec;
+impl crate::RegisterSpec for Timg0CclkctlSpec {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`timg0_cclkctl::R`](R) reader structure"]
+impl crate::Readable for Timg0CclkctlSpec {}
+#[doc = "`write(|w| ..)` method takes [`timg0_cclkctl::W`](W) writer structure"]
+impl crate::Writable for Timg0CclkctlSpec {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets TIMG0_CCLKCTL to value 0"]
+impl crate::Resettable for Timg0CclkctlSpec {}

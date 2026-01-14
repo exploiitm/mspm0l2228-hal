@@ -1,0 +1,187 @@
+#[doc = "Register `TIMG0_EVT_MODE` reader"]
+pub type R = crate::R<Timg0EvtModeSpec>;
+#[doc = "Register `TIMG0_EVT_MODE` writer"]
+pub type W = crate::W<Timg0EvtModeSpec>;
+#[doc = "Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[0\\]\n\nValue on reset: 1"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Evt0Cfg {
+    #[doc = "0: The interrupt or event line is disabled."]
+    Disable = 0,
+    #[doc = "1: The interrupt or event line is in software mode. Software must clear the RIS."]
+    Software = 1,
+    #[doc = "2: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    Hardware = 2,
+}
+impl From<Evt0Cfg> for u8 {
+    #[inline(always)]
+    fn from(variant: Evt0Cfg) -> Self {
+        variant as _
+    }
+}
+impl crate::FieldSpec for Evt0Cfg {
+    type Ux = u8;
+}
+impl crate::IsEnum for Evt0Cfg {}
+#[doc = "Field `EVT0_CFG` reader - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[0\\]"]
+pub type Evt0CfgR = crate::FieldReader<Evt0Cfg>;
+impl Evt0CfgR {
+    #[doc = "Get enumerated values variant"]
+    #[inline(always)]
+    pub const fn variant(&self) -> Option<Evt0Cfg> {
+        match self.bits {
+            0 => Some(Evt0Cfg::Disable),
+            1 => Some(Evt0Cfg::Software),
+            2 => Some(Evt0Cfg::Hardware),
+            _ => None,
+        }
+    }
+    #[doc = "The interrupt or event line is disabled."]
+    #[inline(always)]
+    pub fn is_disable(&self) -> bool {
+        *self == Evt0Cfg::Disable
+    }
+    #[doc = "The interrupt or event line is in software mode. Software must clear the RIS."]
+    #[inline(always)]
+    pub fn is_software(&self) -> bool {
+        *self == Evt0Cfg::Software
+    }
+    #[doc = "The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    #[inline(always)]
+    pub fn is_hardware(&self) -> bool {
+        *self == Evt0Cfg::Hardware
+    }
+}
+#[doc = "Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]\n\nValue on reset: 2"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Evt1Cfg {
+    #[doc = "0: The interrupt or event line is disabled."]
+    Disable = 0,
+    #[doc = "1: The interrupt or event line is in software mode. Software must clear the RIS."]
+    Software = 1,
+    #[doc = "2: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    Hardware = 2,
+}
+impl From<Evt1Cfg> for u8 {
+    #[inline(always)]
+    fn from(variant: Evt1Cfg) -> Self {
+        variant as _
+    }
+}
+impl crate::FieldSpec for Evt1Cfg {
+    type Ux = u8;
+}
+impl crate::IsEnum for Evt1Cfg {}
+#[doc = "Field `EVT1_CFG` reader - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]"]
+pub type Evt1CfgR = crate::FieldReader<Evt1Cfg>;
+impl Evt1CfgR {
+    #[doc = "Get enumerated values variant"]
+    #[inline(always)]
+    pub const fn variant(&self) -> Option<Evt1Cfg> {
+        match self.bits {
+            0 => Some(Evt1Cfg::Disable),
+            1 => Some(Evt1Cfg::Software),
+            2 => Some(Evt1Cfg::Hardware),
+            _ => None,
+        }
+    }
+    #[doc = "The interrupt or event line is disabled."]
+    #[inline(always)]
+    pub fn is_disable(&self) -> bool {
+        *self == Evt1Cfg::Disable
+    }
+    #[doc = "The interrupt or event line is in software mode. Software must clear the RIS."]
+    #[inline(always)]
+    pub fn is_software(&self) -> bool {
+        *self == Evt1Cfg::Software
+    }
+    #[doc = "The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    #[inline(always)]
+    pub fn is_hardware(&self) -> bool {
+        *self == Evt1Cfg::Hardware
+    }
+}
+#[doc = "Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]\n\nValue on reset: 2"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Evt2Cfg {
+    #[doc = "0: The interrupt or event line is disabled."]
+    Disable = 0,
+    #[doc = "1: The interrupt or event line is in software mode. Software must clear the RIS."]
+    Software = 1,
+    #[doc = "2: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    Hardware = 2,
+}
+impl From<Evt2Cfg> for u8 {
+    #[inline(always)]
+    fn from(variant: Evt2Cfg) -> Self {
+        variant as _
+    }
+}
+impl crate::FieldSpec for Evt2Cfg {
+    type Ux = u8;
+}
+impl crate::IsEnum for Evt2Cfg {}
+#[doc = "Field `EVT2_CFG` reader - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]"]
+pub type Evt2CfgR = crate::FieldReader<Evt2Cfg>;
+impl Evt2CfgR {
+    #[doc = "Get enumerated values variant"]
+    #[inline(always)]
+    pub const fn variant(&self) -> Option<Evt2Cfg> {
+        match self.bits {
+            0 => Some(Evt2Cfg::Disable),
+            1 => Some(Evt2Cfg::Software),
+            2 => Some(Evt2Cfg::Hardware),
+            _ => None,
+        }
+    }
+    #[doc = "The interrupt or event line is disabled."]
+    #[inline(always)]
+    pub fn is_disable(&self) -> bool {
+        *self == Evt2Cfg::Disable
+    }
+    #[doc = "The interrupt or event line is in software mode. Software must clear the RIS."]
+    #[inline(always)]
+    pub fn is_software(&self) -> bool {
+        *self == Evt2Cfg::Software
+    }
+    #[doc = "The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag."]
+    #[inline(always)]
+    pub fn is_hardware(&self) -> bool {
+        *self == Evt2Cfg::Hardware
+    }
+}
+impl R {
+    #[doc = "Bits 0:1 - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[0\\]"]
+    #[inline(always)]
+    pub fn evt0_cfg(&self) -> Evt0CfgR {
+        Evt0CfgR::new((self.bits & 3) as u8)
+    }
+    #[doc = "Bits 2:3 - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]"]
+    #[inline(always)]
+    pub fn evt1_cfg(&self) -> Evt1CfgR {
+        Evt1CfgR::new(((self.bits >> 2) & 3) as u8)
+    }
+    #[doc = "Bits 4:5 - Event line mode select for event corresponding to \\[IPSTANDARD.INT_EVENT\\]\\[1\\]"]
+    #[inline(always)]
+    pub fn evt2_cfg(&self) -> Evt2CfgR {
+        Evt2CfgR::new(((self.bits >> 4) & 3) as u8)
+    }
+}
+impl W {}
+#[doc = "Event Mode\n\nYou can [`read`](crate::Reg::read) this register and get [`timg0_evt_mode::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`timg0_evt_mode::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct Timg0EvtModeSpec;
+impl crate::RegisterSpec for Timg0EvtModeSpec {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`timg0_evt_mode::R`](R) reader structure"]
+impl crate::Readable for Timg0EvtModeSpec {}
+#[doc = "`write(|w| ..)` method takes [`timg0_evt_mode::W`](W) writer structure"]
+impl crate::Writable for Timg0EvtModeSpec {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets TIMG0_EVT_MODE to value 0x29"]
+impl crate::Resettable for Timg0EvtModeSpec {
+    const RESET_VALUE: u32 = 0x29;
+}

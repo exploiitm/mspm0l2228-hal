@@ -1,0 +1,11 @@
+[package]
+name = "mspm0l2228-hal"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+paste = "1.0.0"
+embedded-hal = "1.0.0"
+
+test_pack = { path = "../pac" }
+chacha20 = "0.9.1"

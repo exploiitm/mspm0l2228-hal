@@ -1,0 +1,20 @@
+#[doc = "Register `SPI0_RXDATA` reader"]
+pub type R = crate::R<Spi0RxdataSpec>;
+#[doc = "Field `DATA` reader - Received Data When PACKEN=1,two entries of the FIFO are returned as a 32-bit value. When PACKEN=0, 1 entry of FIFO is returned as 16-bit value. As data values are removed by the receive logic from the incoming data frame, they are placed into the entry in the receive FIFO, pointed to by the current FIFO write pointer. Received data less than 16 bits is automatically right justified in the receive buffer."]
+pub type DataR = crate::FieldReader<u16>;
+impl R {
+    #[doc = "Bits 0:15 - Received Data When PACKEN=1,two entries of the FIFO are returned as a 32-bit value. When PACKEN=0, 1 entry of FIFO is returned as 16-bit value. As data values are removed by the receive logic from the incoming data frame, they are placed into the entry in the receive FIFO, pointed to by the current FIFO write pointer. Received data less than 16 bits is automatically right justified in the receive buffer."]
+    #[inline(always)]
+    pub fn data(&self) -> DataR {
+        DataR::new((self.bits & 0xffff) as u16)
+    }
+}
+#[doc = "RXDATA Register\n\nYou can [`read`](crate::Reg::read) this register and get [`spi0_rxdata::R`](R). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct Spi0RxdataSpec;
+impl crate::RegisterSpec for Spi0RxdataSpec {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`spi0_rxdata::R`](R) reader structure"]
+impl crate::Readable for Spi0RxdataSpec {}
+#[doc = "`reset()` method sets SPI0_RXDATA to value 0"]
+impl crate::Resettable for Spi0RxdataSpec {}

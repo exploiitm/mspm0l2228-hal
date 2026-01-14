@@ -1,0 +1,411 @@
+_svd: "./MSPM0L222X.svd"
+
+_delete:
+  - ADC0
+
+# The CTR_WIDTH field in the AESADV_CTRL register has different uses depending
+# on whether the CTR or CFB fields are set. The SVD file does not handle all
+# of the cases for CFB mode and also added duplicate enumerated values.
+# This is resolved by combining the CTR_WIDTH enumerated value definitions.
+#
+# The OFB_GCM_CCM_CONT field also has a dual use depending on whether
+# OFB mode or CCM/GCM mode is selected.
+AESADV:
+  AESADV_CTRL:
+    _delete:
+      - CTR_WIDTH
+      - OFB_GCM_CCM_CONT
+    _add:
+      CTR_WIDTH:
+        description: |
+          When the CTR bit is set, specifies the counter width for AES-CTR mode.
+          When the CFB bit is set, specifies the CFB mode feedback width:
+        bitOffset: 7
+        bitWidth: 2
+        access: read-write
+      OFB_GCM_CCM_CONT:
+        description: |
+          This bit has a dual use, depending on the selection of CCM/GCM, see bits [18:16].
+          If CCM/GCM is not selected:
+          If this bit is set to 1b, full block AES output feedback mode (OFB-128) is selected.
+          If CCM/GCM is selected:
+          Continue processing of an interrupted AES-GCM or AES-CCM operation in the AAD phase.
+          Set this write-only signal to 1b together with the regular mode bit settings for a GCM or CCM operation, to continue processing from the next full AAD block (128 bits) boundary.
+          Before setting this bit all applicable context to resume processing must have been loaded into the engine: Keys, IV, intermediate digest/TAG, block counter and the CCM align data word (the latter is for CCM mode only). The mode can be written together with this bit, as it is part of the same register.
+        bitOffset: 26
+        bitWidth: 1
+        access: read-write
+    CTR_WIDTH:
+      _write:
+        CTR32_OR_CFB128: [0x0, "CTR: 32-bit counter; CFB: CFB-128 mode"]
+        CTR64_OR_CFB1: [0x1, "CTR: 64-bit counter; CFB: CFB-1 mode"]
+        CTR96_OR_CFB8: [0x2, "CTR: 96-bit counter; CFB: CFB-8 mode"]
+        CTR128: [0x3, "CTR: 128-bit counter; CFB: undefined"]
+    OFB_GCM_CCM_CONT:
+      _write:
+        OFB_OR_GCM_CCM_CONT: [0x1, "OFB: Enable OFB; CCM/GCM: Continue GCM/CCM processing in AAD phase"]
+  "AESADV_GPRCM\\[%s\\]":
+    AESADV_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for AESADV power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+
+    AESADV_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for AESADV reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+  _add:
+    _interrupts:
+      AESADV:
+        value: 28
+
+COMP0:
+  # According to the vendor, the COMP0_CPU_INT_IIDX.STAT field has enumerated
+  # values set to 0, 2, 3, 4 when the field itself is only 2 bits wide.
+  # We're going to assume that the values are actually 0, 1, 2, 3.
+  "COMP0_CPU_INT\\[%s\\]":
+    COMP0_CPU_INT_IIDX:
+      _delete: STAT
+      _add:
+        STAT:
+          description: "Interrupt index status"
+          bitOffset: 0
+          bitWidth: 2
+          access: read-only
+      STAT:
+        _read:
+          NO_INTR: [0x0, "No pending interrupt"]
+          COMPIFG: [0x1, "Comparator output interrupt"]
+          COMPINVIFG: [0x2, "Comparator output inverted interrupt"]
+          OUTRDYIFG: [0x3, "Comparator output ready interrupt"]
+  # According to the vendor, the COMP0_GEN_EVENT_IIDX.STAT field has enumerated
+  # values set to 0, 2, 3, 4 when the field itself is only 2 bits wide.
+  # We're going to assume that the values are actually 0, 1, 2, 3.
+  "COMP0_GEN_EVENT\\[%s\\]":
+    COMP0_GEN_EVENT_IIDX:
+      _delete: STAT
+      _add:
+        STAT:
+          description: "Interrupt index status"
+          bitOffset: 0
+          bitWidth: 2
+          access: read-only
+      STAT:
+        _read:
+          NO_INTR: [0x0, "No pending interrupt"]
+          COMPIFG: [0x1, "Comparator output interrupt"]
+          COMPINVIFG: [0x2, "Comparator output inverted interrupt"]
+          OUTRDYIFG: [0x3, "Comparator output ready interrupt"]
+  _add:
+    _interrupts:
+      INT_GROUP1:
+        description: "COMP0 interrupt (group 1, IIDX 2)"
+        value: 1
+
+# Add missing <interrupts> definitions
+# Taken from 8.9.3 Interrupt Mapping in the MSPM0L222x Datasheet (Rev. A)
+# Interrupt Group 0
+WWDT0:
+  _add:
+    _interrupts:
+      INT_GROUP0:
+        description: "WWDT0 interrupt (group 0, IIDX 0)"
+        value: 0
+DEBUGSS:
+  _add:
+    _interrupts:
+      INT_GROUP0:
+        description: "DEBUGSS interrupt (group 0, IIDX 2)"
+        value: 0
+FLASHCTL:
+  _add:
+    _interrupts:
+      INT_GROUP0:
+        description: "FLASHCTL interrupt (group 0, IIDX 3)"
+        value: 0
+# TODO: Event Subscriber Port 0 (FSUB0)
+# TODO: Event Subscriber Port 1 (FSUB1)
+SYSCTL:
+  _add:
+    _interrupts:
+      INT_GROUP0:
+        description: "SYSCTL interrupt (group 0, IIDX 6)"
+        value: 0
+# Interrupt Group 1
+GPIOA:
+  _add:
+    _interrupts:
+      INT_GROUP1:
+        description: "GPIOA interrupt (group 1, IIDX 0)"
+        value: 1
+  "GPIOA_GPRCM\\[%s\\]":
+    GPIOA_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOA power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+
+    GPIOA_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOA reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
+GPIOB:
+  _add:
+    _interrupts:
+      INT_GROUP1:
+        description: "GPIOB interrupt (group 1, IIDX 1)"
+        value: 1
+  "GPIOB_GPRCM\\[%s\\]":
+    GPIOB_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOB power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+
+    GPIOB_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOB reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+TRNG:
+  _add:
+    _interrupts:
+      INT_GROUP1:
+        description: "TRNG interrupt (group 1, IIDX 5)"
+        value: 1
+
+  "TRNG_GPRCM\\[%s\\]":
+    TRNG_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for TRNG power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+
+    TRNG_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for TRNG reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
+GPIOC:
+  _add:
+    _interrupts:
+      INT_GROUP1:
+        description: "GPIOC interrupt (group 1, IIDX 6)"
+        value: 1
+  "GPIOC_GPRCM\\[%s\\]":
+    GPIOC_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOC power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+
+    GPIOC_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for GPIOC reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+# Individual interrupts
+TIMG12:
+  _add:
+    _interrupts:
+      TIMG12:
+        value: 2
+UART4:
+  _add:
+    _interrupts:
+      UART4:
+        value: 3
+SPI0:
+  _add:
+    _interrupts:
+      SPI0:
+        value: 9
+  "SPI0_GPRCM\\[%s\\]":
+    SPI0_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for SPI0 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    SPI0_CLKCFG:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for SPI0 clock config"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock config"]
+        UNLOCK: [0xA9, "Unlock config"]
+    SPI0_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for SPI0 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+SPI1:
+  _add:
+    _interrupts:
+      SPI1:
+        value: 10
+UART2:
+  _add:
+    _interrupts:
+      UART2:
+        value: 13
+UART3:
+  _add:
+    _interrupts:
+      UART3:
+        value: 14
+UART0:
+  _add:
+    _interrupts:
+      UART0:
+        value: 15
+  "UART0_GPRCM\\[%s\\]":
+    UART0_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART0 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    UART0_CLKCFG:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART0 clock config"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock config"]
+        UNLOCK: [0xA9, "Unlock config"]
+    UART0_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART0 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
+UART1:
+  _add:
+    _interrupts:
+      UART1:
+        value: 16
+TIMA0:
+  _add:
+    _interrupts:
+      TIMA0:
+        value: 18
+TIMG8:
+  _add:
+    _interrupts:
+      TIMG8:
+        value: 20
+TIMG0:
+  _add:
+    _interrupts:
+      TIMG0:
+        value: 21
+TIMG4:
+  _add:
+    _interrupts:
+      TIMG4:
+        value: 22
+TIMG5:
+  _add:
+    _interrupts:
+      TIMG5:
+        value: 23
+I2C0:
+  _add:
+    _interrupts:
+      I2C0:
+        value: 24
+I2C1:
+  _add:
+    _interrupts:
+      I2C1:
+        value: 25
+I2C2:
+  _add:
+    _interrupts:
+      I2C2:
+        value: 26
+LCD:
+  _add:
+    _interrupts:
+      LCD0:
+        value: 29
+LFSS:
+  _add:
+    _interrupts:
+      LFSS:
+        value: 30
+DMA:
+  _add:
+    _interrupts:
+      DMA0:
+        value: 31
