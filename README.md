@@ -12,7 +12,7 @@ This crate uses the PAC in [exploiitm/pac](https://github.com/exploiitm/mspm0l22
 > At the time of writing this README the release version of OpenOCD does not have the patch for mspm0
 
 
-3. Install `arm-none-eabi-objcopy`
+3. Install `arm-none-eabi-objcopy` and the rustup `thumbv6m-none-eabi` toolchain
 4. Setup new project
 	```bash
 	$ cargo new hal_test; cd hal_test
@@ -100,7 +100,7 @@ This crate uses the PAC in [exploiitm/pac](https://github.com/exploiitm/mspm0l22
 	$ cargo r
 	```
 
-This specific example flashes the connected board with code for randomly toggling the RGB LED on the LaunchPad.
+This specific example flashes the connected board with code for randomly toggling the RGB LED on the **LaunchPad**.
 
 > [!IMPORTANT] 
 > Make sure the shorts are correctly tied if the LEDs don't light up
