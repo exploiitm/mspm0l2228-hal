@@ -8,4 +8,4 @@ pub mod trng;
 pub mod uart;
 mod utils;
 
-pub use test_pack as pac;
+pub use mspm0l2228_pac as pac;

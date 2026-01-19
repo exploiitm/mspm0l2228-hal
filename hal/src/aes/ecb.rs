@@ -1,6 +1,4 @@
-use crate::aes::{
-    AesAdv, AesFunctionError, ModeECB, NoDma, UsesDma, WithDma,
-};
+use crate::aes::{AesAdv, AesFunctionError, ModeECB, NoDma, UsesDma, WithDma};
 use crate::dma;
 
 impl<DMA: UsesDma> AesAdv<ModeECB, DMA> {
