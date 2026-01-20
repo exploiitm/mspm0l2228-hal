@@ -55,11 +55,76 @@ where
         self.variant(Enable::Enable)
     }
 }
+#[doc = "Key unlock for I2C0 power enable\n\nValue on reset: 0"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum KeyUnlock {
+    #[doc = "0: Lock pwren"]
+    Lock = 0,
+    #[doc = "38: Unlock pwren"]
+    Unlock = 38,
+}
+impl From<KeyUnlock> for u8 {
+    #[inline(always)]
+    fn from(variant: KeyUnlock) -> Self {
+        variant as _
+    }
+}
+impl crate::FieldSpec for KeyUnlock {
+    type Ux = u8;
+}
+impl crate::IsEnum for KeyUnlock {}
+#[doc = "Field `KEY_UNLOCK` reader - Key unlock for I2C0 power enable"]
+pub type KeyUnlockR = crate::FieldReader<KeyUnlock>;
+impl KeyUnlockR {
+    #[doc = "Get enumerated values variant"]
+    #[inline(always)]
+    pub const fn variant(&self) -> Option<KeyUnlock> {
+        match self.bits {
+            0 => Some(KeyUnlock::Lock),
+            38 => Some(KeyUnlock::Unlock),
+            _ => None,
+        }
+    }
+    #[doc = "Lock pwren"]
+    #[inline(always)]
+    pub fn is_lock(&self) -> bool {
+        *self == KeyUnlock::Lock
+    }
+    #[doc = "Unlock pwren"]
+    #[inline(always)]
+    pub fn is_unlock(&self) -> bool {
+        *self == KeyUnlock::Unlock
+    }
+}
+#[doc = "Field `KEY_UNLOCK` writer - Key unlock for I2C0 power enable"]
+pub type KeyUnlockW<'a, REG> = crate::FieldWriter<'a, REG, 8, KeyUnlock>;
+impl<'a, REG> KeyUnlockW<'a, REG>
+where
+    REG: crate::Writable + crate::RegisterSpec,
+    REG::Ux: From<u8>,
+{
+    #[doc = "Lock pwren"]
+    #[inline(always)]
+    pub fn lock(self) -> &'a mut crate::W<REG> {
+        self.variant(KeyUnlock::Lock)
+    }
+    #[doc = "Unlock pwren"]
+    #[inline(always)]
+    pub fn unlock(self) -> &'a mut crate::W<REG> {
+        self.variant(KeyUnlock::Unlock)
+    }
+}
 impl R {
     #[doc = "Bit 0 - Enable the power"]
     #[inline(always)]
     pub fn enable(&self) -> EnableR {
         EnableR::new((self.bits & 1) != 0)
+    }
+    #[doc = "Bits 24:31 - Key unlock for I2C0 power enable"]
+    #[inline(always)]
+    pub fn key_unlock(&self) -> KeyUnlockR {
+        KeyUnlockR::new(((self.bits >> 24) & 0xff) as u8)
     }
 }
 impl W {
@@ -67,6 +132,11 @@ impl W {
     #[inline(always)]
     pub fn enable(&mut self) -> EnableW<'_, I2c0PwrenSpec> {
         EnableW::new(self, 0)
+    }
+    #[doc = "Bits 24:31 - Key unlock for I2C0 power enable"]
+    #[inline(always)]
+    pub fn key_unlock(&mut self) -> KeyUnlockW<'_, I2c0PwrenSpec> {
+        KeyUnlockW::new(self, 24)
     }
 }
 #[doc = "Power enable\n\nYou can [`read`](crate::Reg::read) this register and get [`i2c0_pwren::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`i2c0_pwren::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]

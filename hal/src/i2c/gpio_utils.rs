@@ -25,7 +25,7 @@ pub enum GpioHysteresis {
 pub enum GpioWakeup {
     Enable = 0x08000000,
     Disable = 0x00000000,
-    WakeupOn2 = 134217728 | 268435456,
+    WakeupOn2 = 0x8000000 | 0x10000000,
 }
 
 #[repr(u32)]

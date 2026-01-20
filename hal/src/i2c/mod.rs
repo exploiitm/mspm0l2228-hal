@@ -24,21 +24,36 @@ impl I2C0 {
         wakeup: gpio_utils::GpioWakeup,
         iomux: &Iomux,
     ) {
-        const IOMUX_PINCM_PC_CONNECTED: u32 = 0x00000080;
-        const IOMUX_PINCM_INENA_ENABLE: u32 = 0x00040000;
-        const IOMUX_PINCM_WCOMP_MASK: u32 = 0x10000000;
-        const IOMUX_PINCM_WUEN_MASK: u32 = 0x08000000;
-        iomux.iomux_pincm(pincm_index).write(|w| unsafe {
-            w.bits(
-                function
-                    | IOMUX_PINCM_PC_CONNECTED
-                    | IOMUX_PINCM_INENA_ENABLE
-                    | inversion as u32
-                    | internal_resistor as u32
-                    | hysteresis as u32
-                    | (wakeup as u32
-                        & (IOMUX_PINCM_WCOMP_MASK | IOMUX_PINCM_WUEN_MASK)),
-            )
+        iomux.iomux_pincm(pincm_index).write(|w| {
+            match inversion {
+                gpio_utils::GpioInversion::Enable => w.inv().enable(),
+                gpio_utils::GpioInversion::Disable => w.inv().disable(),
+            };
+            match internal_resistor {
+                gpio_utils::GpioResistor::PullDown => {
+                    w.pipd().enable();
+                }
+                gpio_utils::GpioResistor::PullUp => {
+                    w.pipu().enable();
+                }
+
+                _ => {}
+            };
+            match hysteresis {
+                gpio_utils::GpioHysteresis::Enable => w.hysten().enable(),
+                gpio_utils::GpioHysteresis::Disable => w.hysten().disable(),
+            };
+            match wakeup {
+                gpio_utils::GpioWakeup::Enable => w.wuen().enable(),
+                gpio_utils::GpioWakeup::Disable => w.wuen().disable(),
+                gpio_utils::GpioWakeup::WakeupOn2 => {
+                    w.wcomp().set_bit();
+                    w.wuen().enable()
+                }
+            };
+            w.pc().connected();
+            w.inena().enable();
+            unsafe { w.pf().bits(function as u8) }
         });
     }
     fn set_timer_period(&mut self, period: u8) {
@@ -49,25 +64,17 @@ impl I2C0 {
     }
 
     fn reset_peripheral(&mut self) {
-        self._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| unsafe {
-            const I2C_RSTCTL_KEY_UNLOCK_W: u32 = 0xB1000000;
-            const I2C_RSTCTL_RESETSTKYCLR_CLR: u32 = 0x00000002;
-            const I2C_RSTCTL_RESETASSERT_ASSERT: u32 = 0x00000001;
-
-            w.bits(
-                I2C_RSTCTL_KEY_UNLOCK_W
-                    | I2C_RSTCTL_RESETSTKYCLR_CLR
-                    | I2C_RSTCTL_RESETASSERT_ASSERT,
-            )
+        self._i2c.i2c0_gprcm(0).i2c0_rstctl().write(|w| {
+            w.key_unlock().unlock();
+            w.resetassert().assert();
+            w.resetstkyclr().clr()
         });
     }
 
     fn enable_power(&mut self) {
-        self._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| unsafe {
-            const I2C_PWREN_KEY_UNLOCK_W: u32 = 0x26000000;
-            const I2C_PWREN_ENABLE_ENABLE: u32 = 0x00000001;
-
-            w.bits(I2C_PWREN_ENABLE_ENABLE | I2C_PWREN_KEY_UNLOCK_W)
+        self._i2c.i2c0_gprcm(0).i2c0_pwren().write(|w| {
+            w.key_unlock().unlock();
+            w.enable().enable()
         });
     }
 }
