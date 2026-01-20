@@ -62,6 +62,43 @@ where
         self.variant(Resetstkyclr::Clr)
     }
 }
+#[doc = "Key unlock for I2C0 reset control\n\nValue on reset: 0"]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum KeyUnlockw {
+    #[doc = "0: Lock reset"]
+    Lock = 0,
+    #[doc = "177: Unlock reset"]
+    Unlock = 177,
+}
+impl From<KeyUnlockw> for u8 {
+    #[inline(always)]
+    fn from(variant: KeyUnlockw) -> Self {
+        variant as _
+    }
+}
+impl crate::FieldSpec for KeyUnlockw {
+    type Ux = u8;
+}
+impl crate::IsEnum for KeyUnlockw {}
+#[doc = "Field `KEY_UNLOCK` writer - Key unlock for I2C0 reset control"]
+pub type KeyUnlockW<'a, REG> = crate::FieldWriter<'a, REG, 8, KeyUnlockw>;
+impl<'a, REG> KeyUnlockW<'a, REG>
+where
+    REG: crate::Writable + crate::RegisterSpec,
+    REG::Ux: From<u8>,
+{
+    #[doc = "Lock reset"]
+    #[inline(always)]
+    pub fn lock(self) -> &'a mut crate::W<REG> {
+        self.variant(KeyUnlockw::Lock)
+    }
+    #[doc = "Unlock reset"]
+    #[inline(always)]
+    pub fn unlock(self) -> &'a mut crate::W<REG> {
+        self.variant(KeyUnlockw::Unlock)
+    }
+}
 impl W {
     #[doc = "Bit 0 - Assert reset to the peripheral"]
     #[inline(always)]
@@ -72,6 +109,11 @@ impl W {
     #[inline(always)]
     pub fn resetstkyclr(&mut self) -> ResetstkyclrW<'_, I2c0RstctlSpec> {
         ResetstkyclrW::new(self, 1)
+    }
+    #[doc = "Bits 24:31 - Key unlock for I2C0 reset control"]
+    #[inline(always)]
+    pub fn key_unlock(&mut self) -> KeyUnlockW<'_, I2c0RstctlSpec> {
+        KeyUnlockW::new(self, 24)
     }
 }
 #[doc = "Reset Control\n\nYou can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`i2c0_rstctl::W`](W). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]

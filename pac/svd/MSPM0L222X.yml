@@ -384,6 +384,27 @@ I2C0:
     _interrupts:
       I2C0:
         value: 24
+  "I2C0_GPRCM\\[%s\\]":
+    I2C0_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for I2C0 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    I2C0_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for I2C0 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
 I2C1:
   _add:
     _interrupts:
