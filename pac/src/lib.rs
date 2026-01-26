@@ -391,6 +391,15 @@ impl core::fmt::Debug for Timg12 {
 }
 #[doc = "PERIPHERALREGION"]
 pub mod timg12;
+#[doc = "FACTORYREGION"]
+pub type Factoryregion = crate::Periph<factoryregion::RegisterBlock, 0x41c4_0000>;
+impl core::fmt::Debug for Factoryregion {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Factoryregion").finish()
+    }
+}
+#[doc = "FACTORYREGION"]
+pub mod factoryregion;
 #[doc = "PERIPHERALREGION"]
 pub type Tima0 = crate::Periph<tima0::RegisterBlock, 0x4086_0000>;
 impl core::fmt::Debug for Tima0 {
@@ -533,6 +542,8 @@ pub struct Peripherals {
     pub timg8: Timg8,
     #[doc = "TIMG12"]
     pub timg12: Timg12,
+    #[doc = "FACTORYREGION"]
+    pub factoryregion: Factoryregion,
     #[doc = "TIMA0"]
     pub tima0: Tima0,
     #[doc = "DMA"]
@@ -601,6 +612,7 @@ impl Peripherals {
             timg4: unsafe { Timg4::steal() },
             timg8: unsafe { Timg8::steal() },
             timg12: unsafe { Timg12::steal() },
+            factoryregion: unsafe { Factoryregion::steal() },
             tima0: unsafe { Tima0::steal() },
             dma: unsafe { Dma::steal() },
             lfss: unsafe { Lfss::steal() },

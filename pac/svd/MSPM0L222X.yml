@@ -2,6 +2,96 @@ _svd: "./MSPM0L222X.svd"
 
 _delete:
   - ADC0
+_add:
+  FACTORYREGION:
+    baseAddress: 0x41C40000
+    addressBlock:
+      offset: 0x0
+      size: 0x80
+      usage: registers
+    registers:
+      TRACEID:
+        addressOffset: 0x0
+        size: 32
+        access: read-only
+        description: "Unique value per device shipped"
+      DEVICEID:
+        addressOffset: 0x4
+        size: 32
+        access: read-only
+        description: "Device Identifier"
+        fields:
+          MANAFACTURER:
+            description: "TI's JEDEC bank and company code"
+            bitOffset: 1
+            bitWidth: 11
+            resetValue: 0x17
+          PARTNUM:
+            description: "Part number of the device"
+            bitOffset: 12
+            bitWidth: 16
+            resetValue: 0xBB88
+          VERSION:
+            description: "Revision of this device"
+            bitOffset: 28
+            bitWidth: 4
+            resetValue: 0x0
+      USERID:
+        addressOffset: 0x8
+        size: 32
+        access: read-only
+        fields:
+          PART:
+            description: "Bit pattern that uniquely identifying a part"
+            bitOffset: 0
+            bitWidth: 16
+            resetValue: 0
+          VARIANT:
+            description: "Bit pattern uniquely identifying the variant for the part"
+            bitOffset: 16
+            bitWidth: 8
+            resetValue: 0
+          MINORREV:
+            description: "Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used."
+            bitOffset: 24
+            bitWidth: 4
+            resetValue: 0
+          MAJORREV:
+            description: "Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design"
+            bitOffset: 28
+            bitWidth: 3
+            resetValue: 0
+      SRAMFLASH:
+        addressOffset: 0x18
+        size: 32
+        access: read-only
+        fields:
+          MAINFLASH_SZ:
+            description: |
+              The encoding of the field is that value of the field is an interger to be interpreted as number of KB.
+              For example, if the value of the field id 4, then it is 4KB, the value is 32KB, and so on.
+            bitOffset: 0
+            bitWidth: 11
+            resetValue: 0x80
+          MAINNUMBANKS:
+            bitOffset: 12
+            bitWidth: 2
+          SRAM_SZ:
+            description: |
+              The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+              For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+            bitOffset: 16
+            bitWidth: 10
+            resetValue: 0x20
+          DATAFLASH_SZ:
+            description: |
+              The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+              For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+            bitOffset: 26
+            bitWidth: 6
+            resetValue: 0x0
+
+
 
 # The CTR_WIDTH field in the AESADV_CTRL register has different uses depending
 # on whether the CTR or CFB fields are set. The SVD file does not handle all
@@ -134,6 +224,10 @@ FLASHCTL:
       INT_GROUP0:
         description: "FLASHCTL interrupt (group 0, IIDX 3)"
         value: 0
+        
+      
+
+      
 # TODO: Event Subscriber Port 0 (FSUB0)
 # TODO: Event Subscriber Port 1 (FSUB1)
 SYSCTL:
@@ -354,6 +448,36 @@ UART1:
     _interrupts:
       UART1:
         value: 16
+  "UART1_GPRCM\\[%s\\]":
+    UART1_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    UART1_CLKCFG:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 clock config"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock config"]
+        UNLOCK: [0xA9, "Unlock config"]
+    UART1_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
 TIMA0:
   _add:
     _interrupts:

@@ -1,0 +1,41 @@
+#[doc = "Register `USERID` reader"]
+pub type R = crate::R<UseridSpec>;
+#[doc = "Field `PART` reader - Bit pattern that uniquely identifying a part"]
+pub type PartR = crate::FieldReader<u16>;
+#[doc = "Field `VARIANT` reader - Bit pattern uniquely identifying the variant for the part"]
+pub type VariantR = crate::FieldReader;
+#[doc = "Field `MINORREV` reader - Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used."]
+pub type MinorrevR = crate::FieldReader;
+#[doc = "Field `MAJORREV` reader - Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design"]
+pub type MajorrevR = crate::FieldReader;
+impl R {
+    #[doc = "Bits 0:15 - Bit pattern that uniquely identifying a part"]
+    #[inline(always)]
+    pub fn part(&self) -> PartR {
+        PartR::new((self.bits & 0xffff) as u16)
+    }
+    #[doc = "Bits 16:23 - Bit pattern uniquely identifying the variant for the part"]
+    #[inline(always)]
+    pub fn variant(&self) -> VariantR {
+        VariantR::new(((self.bits >> 16) & 0xff) as u8)
+    }
+    #[doc = "Bits 24:27 - Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used."]
+    #[inline(always)]
+    pub fn minorrev(&self) -> MinorrevR {
+        MinorrevR::new(((self.bits >> 24) & 0x0f) as u8)
+    }
+    #[doc = "Bits 28:30 - Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design"]
+    #[inline(always)]
+    pub fn majorrev(&self) -> MajorrevR {
+        MajorrevR::new(((self.bits >> 28) & 7) as u8)
+    }
+}
+#[doc = "\n\nYou can [`read`](crate::Reg::read) this register and get [`userid::R`](R). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct UseridSpec;
+impl crate::RegisterSpec for UseridSpec {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`userid::R`](R) reader structure"]
+impl crate::Readable for UseridSpec {}
+#[doc = "`reset()` method sets USERID to value 0"]
+impl crate::Resettable for UseridSpec {}

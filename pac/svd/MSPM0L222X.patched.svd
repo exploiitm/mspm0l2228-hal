@@ -56814,6 +56814,25 @@ Writing to this bit has no effect. The flag is cleared by writing 1 to the NERR 
                   </enumeratedValue>
                 </enumeratedValues>
               </field>
+              <field>
+                <name>KEY_UNLOCK</name>
+                <description>Key unlock for UART1 power enable</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>8</bitWidth>
+                <enumeratedValues>
+                  <name>KEY_UNLOCK</name>
+                  <enumeratedValue>
+                    <name>LOCK</name>
+                    <description>Lock pwren</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>UNLOCK</name>
+                    <description>Unlock pwren</description>
+                    <value>38</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
             </fields>
           </register>
           <register>
@@ -56862,6 +56881,25 @@ Writing to this bit has no effect. The flag is cleared by writing 1 to the NERR 
                   </enumeratedValue>
                 </enumeratedValues>
               </field>
+              <field>
+                <name>KEY_UNLOCK</name>
+                <description>Key unlock for UART1 reset control</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>8</bitWidth>
+                <enumeratedValues>
+                  <name>KEY_UNLOCKW</name>
+                  <enumeratedValue>
+                    <name>LOCK</name>
+                    <description>Lock reset</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>UNLOCK</name>
+                    <description>Unlock reset</description>
+                    <value>177</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
             </fields>
           </register>
           <register>
@@ -56886,6 +56924,25 @@ Writing to this bit has no effect. The flag is cleared by writing 1 to the NERR 
                   <enumeratedValue>
                     <name>Enable</name>
                     <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>KEY_UNLOCK</name>
+                <description>Key unlock for UART1 clock config</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>8</bitWidth>
+                <enumeratedValues>
+                  <name>KEY_UNLOCK</name>
+                  <enumeratedValue>
+                    <name>LOCK</name>
+                    <description>Lock config</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>UNLOCK</name>
+                    <description>Unlock config</description>
+                    <value>169</value>
                   </enumeratedValue>
                 </enumeratedValues>
               </field>
@@ -120080,6 +120137,120 @@ This selects whether a trigger is enabled or not for this counter
             </fields>
           </register>
         </cluster>
+      </registers>
+    </peripheral>
+    <peripheral>
+      <name>FACTORYREGION</name>
+      <baseAddress>0x41C40000</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x80</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <register>
+          <name>TRACEID</name>
+          <description>Unique value per device shipped</description>
+          <addressOffset>0x0</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+        </register>
+        <register>
+          <name>DEVICEID</name>
+          <description>Device Identifier</description>
+          <addressOffset>0x4</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>MANAFACTURER</name>
+              <description>TI's JEDEC bank and company code</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>11</bitWidth>
+            </field>
+            <field>
+              <name>PARTNUM</name>
+              <description>Part number of the device</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>16</bitWidth>
+            </field>
+            <field>
+              <name>VERSION</name>
+              <description>Revision of this device</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>4</bitWidth>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>USERID</name>
+          <addressOffset>0x8</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>PART</name>
+              <description>Bit pattern that uniquely identifying a part</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+            </field>
+            <field>
+              <name>VARIANT</name>
+              <description>Bit pattern uniquely identifying the variant for the part</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>8</bitWidth>
+            </field>
+            <field>
+              <name>MINORREV</name>
+              <description>Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used.</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>4</bitWidth>
+            </field>
+            <field>
+              <name>MAJORREV</name>
+              <description>Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>3</bitWidth>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SRAMFLASH</name>
+          <addressOffset>0x18</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>MAINFLASH_SZ</name>
+              <description>The encoding of the field is that value of the field is an interger to be interpreted as number of KB.
+For example, if the value of the field id 4, then it is 4KB, the value is 32KB, and so on.
+</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>11</bitWidth>
+            </field>
+            <field>
+              <name>MAINNUMBANKS</name>
+              <bitOffset>12</bitOffset>
+              <bitWidth>2</bitWidth>
+            </field>
+            <field>
+              <name>SRAM_SZ</name>
+              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>10</bitWidth>
+            </field>
+            <field>
+              <name>DATAFLASH_SZ</name>
+              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+</description>
+              <bitOffset>26</bitOffset>
+              <bitWidth>6</bitWidth>
+            </field>
+          </fields>
+        </register>
       </registers>
     </peripheral>
     <peripheral>
