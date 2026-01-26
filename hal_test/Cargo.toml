@@ -10,3 +10,7 @@ cortex-m-semihosting = "0.5.0"
 embedded-hal = "1.0.0"
 mspm0l2228-hal = { version = "0.1.0", path = "../hal" }
 panic-halt = "1.0.0"
+# k256 = { version = "0.13.4", default-features = false, features = ["ecdh"] }
+# sha3 = { version = "0.10.8", default-features = false }
+# ed25519-dalek = { version = "2.2.0", default-features = false, features = ["fast", "zeroize"] }
+# hmac = { version = "0.12.1", default-features = false }
