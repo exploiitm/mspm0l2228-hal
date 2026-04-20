@@ -1,5 +1,9 @@
-use chacha20::ChaCha20;
-use chacha20::cipher::{KeyIvInit, StreamCipher};
+use core::convert::Infallible;
+
+use rand_core::{
+    TryCryptoRng, TryRng,
+    utils::{fill_bytes_via_next_word, next_u64_via_u32},
+};
 
 pub enum ClockDiv {
     Div1,
@@ -23,11 +27,11 @@ impl Trng {
     pub fn new(
         trng: crate::pac::Trng,
         div: ClockDiv,
-        decim: u8,
     ) -> Result<Self, TrngInitError> {
         Self::reset(&trng);
         Self::enable_power(&trng);
 
+        let decim = 0x3;
         trng.trng_clkdivide().write(|w| match div {
             ClockDiv::Div1 => w.ratio().div_by_1(),
             ClockDiv::Div2 => w.ratio().div_by_2(),
@@ -94,23 +98,6 @@ impl Trng {
         self._trng.trng_data_capture().read().bits()
     }
 
-    pub fn create_rng(&self) -> Rng {
-        let mut init: [u8; 44] = [0x0; 44];
-
-        for n in 0..11 {
-            let x = self.trng_gen_u32();
-            init[0 + 4 * n] = ((x >> 0x00) & 0xFF) as u8;
-            init[1 + 4 * n] = ((x >> 0x08) & 0xFF) as u8;
-            init[2 + 4 * n] = ((x >> 0x10) & 0xFF) as u8;
-            init[3 + 4 * n] = ((x >> 0x18) & 0xFF) as u8;
-        }
-        let k32: [u8; 32] = init[0..32].try_into().unwrap();
-        let n12: [u8; 12] = init[32..44].try_into().unwrap();
-        Rng {
-            cipher: ChaCha20::new(&k32.into(), &n12.into()),
-        }
-    }
-
     fn reset(trng: &crate::pac::Trng) {
         trng.trng_gprcm(0).trng_rstctl().write(|w| {
             w.resetassert().assert();
@@ -127,17 +114,20 @@ impl Trng {
     }
 }
 
-pub struct Rng {
-    cipher: ChaCha20,
-}
+impl TryRng for Trng {
+    type Error = Infallible;
 
-impl Rng {
-    pub fn gen_u32(&mut self) -> u32 {
-        let mut buffer: [u8; 4] = [0x0; 4];
-        self.cipher.apply_keystream(&mut buffer);
-        buffer[0] as u32 >> 0x00
-            | buffer[1] as u32 >> 0x08
-            | buffer[2] as u32 >> 0x10
-            | buffer[3] as u32 >> 0x18
+    fn try_next_u32(&mut self) -> Result<u32, Self::Error> {
+        Ok(self.trng_gen_u32())
+    }
+
+    fn try_next_u64(&mut self) -> Result<u64, Self::Error> {
+        next_u64_via_u32(self)
+    }
+
+    fn try_fill_bytes(&mut self, dst: &mut [u8]) -> Result<(), Self::Error> {
+        fill_bytes_via_next_word(dst, || self.try_next_u32())
     }
 }
+
+impl TryCryptoRng for Trng {}

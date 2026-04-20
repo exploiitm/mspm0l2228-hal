@@ -10,4 +10,4 @@ cortex-m = "0.7.7"
 arrayvec = { version = "0.7.6", default-features = false }
 
 mspm0l2228-pac = { path = "../pac" }
-chacha20 = "0.9.1"
+rand_core = "0.10.0"
