@@ -110,6 +110,15 @@ impl core::fmt::Debug for Wwdt0 {
 #[doc = "WWDT"]
 pub mod wwdt0;
 #[doc = "PERIPHERALREGION"]
+pub type I2c1 = crate::Periph<i2c1::RegisterBlock, 0x400f_2000>;
+impl core::fmt::Debug for I2c1 {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("I2c1").finish()
+    }
+}
+#[doc = "PERIPHERALREGION"]
+pub mod i2c1;
+#[doc = "PERIPHERALREGION"]
 pub type Eventlp = crate::Periph<eventlp::RegisterBlock, 0x400c_9000>;
 impl core::fmt::Debug for Eventlp {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -181,6 +190,15 @@ impl core::fmt::Debug for Uart1 {
 }
 #[doc = "PERIPHERALREGION"]
 pub mod uart1;
+#[doc = "PERIPHERALREGION"]
+pub type I2c2 = crate::Periph<i2c2::RegisterBlock, 0x400f_4000>;
+impl core::fmt::Debug for I2c2 {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("I2c2").finish()
+    }
+}
+#[doc = "PERIPHERALREGION"]
+pub mod i2c2;
 #[doc = "PERIPHERALREGION"]
 pub type Gpiob = crate::Periph<gpiob::RegisterBlock, 0x400a_2000>;
 impl core::fmt::Debug for Gpiob {
@@ -271,6 +289,8 @@ pub struct Peripherals {
     pub debugss: Debugss,
     #[doc = "WWDT0"]
     pub wwdt0: Wwdt0,
+    #[doc = "I2C1"]
+    pub i2c1: I2c1,
     #[doc = "EVENTLP"]
     pub eventlp: Eventlp,
     #[doc = "UART0"]
@@ -287,6 +307,8 @@ pub struct Peripherals {
     pub factoryregion: Factoryregion,
     #[doc = "UART1"]
     pub uart1: Uart1,
+    #[doc = "I2C2"]
+    pub i2c2: I2c2,
     #[doc = "GPIOB"]
     pub gpiob: Gpiob,
     #[doc = "GPIOC"]
@@ -329,6 +351,7 @@ impl Peripherals {
         Peripherals {
             debugss: unsafe { Debugss::steal() },
             wwdt0: unsafe { Wwdt0::steal() },
+            i2c1: unsafe { I2c1::steal() },
             eventlp: unsafe { Eventlp::steal() },
             uart0: unsafe { Uart0::steal() },
             gpioa: unsafe { Gpioa::steal() },
@@ -337,6 +360,7 @@ impl Peripherals {
             trng: unsafe { Trng::steal() },
             factoryregion: unsafe { Factoryregion::steal() },
             uart1: unsafe { Uart1::steal() },
+            i2c2: unsafe { I2c2::steal() },
             gpiob: unsafe { Gpiob::steal() },
             gpioc: unsafe { Gpioc::steal() },
             flashctl: unsafe { Flashctl::steal() },

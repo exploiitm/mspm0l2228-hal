@@ -9,8 +9,6 @@ _delete:
   - TIMG5
   - TIMG8
   - TIMG12
-  - I2C1
-  - I2C2
   - LCD
   - UART2
   - UART3
@@ -203,7 +201,11 @@ FLASHCTL:
       INT_GROUP0:
         description: "FLASHCTL interrupt (group 0, IIDX 3)"
         value: 0
-        
+  FLASHCTL_CMDBYTEN:
+    VAL:
+      _write:
+        PROGRAM_64_WITH_ECC: [0x1FF, "Program flash word with ECC"]
+
       
 
       
