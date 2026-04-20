@@ -1,4 +1,5 @@
 use crate::dma;
+use crate::dma::{NoDma, UsesDma, WithDma, dma_config};
 use crate::pac;
 use core::marker::PhantomData;
 mod cbc;
@@ -10,17 +11,10 @@ pub struct UnInit;
 pub struct ModeECB;
 pub struct ModeCBC;
 
-pub trait UsesDma {}
-pub struct NoDma;
-pub struct WithDma;
-
 impl AesMode for KeyLoad {}
 impl AesMode for UnInit {}
 impl AesMode for ModeECB {}
 impl AesMode for ModeCBC {}
-
-impl UsesDma for NoDma {}
-impl UsesDma for WithDma {}
 
 pub struct AesAdv<MODE: AesMode = KeyLoad, DMA: UsesDma = NoDma> {
     // Only handles 128-bit keys cry about it
@@ -34,27 +28,17 @@ pub struct AesAdv<MODE: AesMode = KeyLoad, DMA: UsesDma = NoDma> {
 }
 
 impl<MODE: AesMode, DMA: UsesDma> AesAdv<MODE, DMA> {
-    pub fn periph_reset(
-        self,
-    ) -> (
-        AesAdv<KeyLoad, NoDma>,
-        Option<dma::Channel<0>>,
-        Option<dma::Channel<1>>,
-    ) {
+    pub fn periph_reset(self) -> AesAdv<KeyLoad, DMA> {
         // Wipes KEYSTORE
         Self::reset(&self._aes);
         Self::pwren(&self._aes);
-        (
-            AesAdv::<KeyLoad, NoDma> {
-                _aes: self._aes,
-                _chan0: None,
-                _chan1: None,
-                _mode: PhantomData,
-                _dma_mode: PhantomData,
-            },
-            self._chan0,
-            self._chan1,
-        )
+        AesAdv::<KeyLoad, DMA> {
+            _aes: self._aes,
+            _chan0: self._chan0,
+            _chan1: self._chan1,
+            _mode: PhantomData,
+            _dma_mode: PhantomData,
+        }
     }
 
     fn pwren(aes: &pac::Aesadv) {
@@ -81,8 +65,6 @@ impl AesAdv<KeyLoad, NoDma> {
         while aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
         while aes.aesadv_ctrl().read().input_rdy().is_empty() {}
 
-        // TODO: Verify physical memory gets cleaned and
-        // look into keystore, binary embedding
         aes.aesadv_key0().write(|w| unsafe { w.bits(key[0]) });
         aes.aesadv_key1().write(|w| unsafe { w.bits(key[1]) });
         aes.aesadv_key2().write(|w| unsafe { w.bits(key[2]) });
@@ -97,25 +79,47 @@ impl AesAdv<KeyLoad, NoDma> {
         }
     }
 }
+impl<DMA: UsesDma> AesAdv<KeyLoad, DMA> {
+    pub fn keyload(self, key: [u32; 4]) -> AesAdv<UnInit, DMA> {
+        let aes = self._aes;
+        Self::reset(&aes);
+        Self::pwren(&aes);
 
-impl AesAdv<UnInit, NoDma> {
-    pub fn to_ecb(self) -> AesAdv<ModeECB, NoDma> {
+        while aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
+        while aes.aesadv_ctrl().read().input_rdy().is_empty() {}
+        aes.aesadv_key0().write(|w| unsafe { w.bits(key[0]) });
+        aes.aesadv_key1().write(|w| unsafe { w.bits(key[1]) });
+        aes.aesadv_key2().write(|w| unsafe { w.bits(key[2]) });
+        aes.aesadv_key3().write(|w| unsafe { w.bits(key[3]) });
+
+        AesAdv::<UnInit, DMA> {
+            _aes: aes,
+            _chan0: self._chan0,
+            _chan1: self._chan1,
+            _mode: PhantomData,
+            _dma_mode: PhantomData,
+        }
+    }
+}
+
+impl<DMA: UsesDma> AesAdv<UnInit, DMA> {
+    pub fn to_ecb(self) -> AesAdv<ModeECB, DMA> {
         self._aes.aesadv_ctrl().write(|w| {
             w.save_cntxt().no_effect();
             w.keysize().k128();
             w.dir().encrypt()
         });
 
-        AesAdv::<ModeECB> {
+        AesAdv::<ModeECB, DMA> {
             _aes: self._aes,
-            _chan0: None,
-            _chan1: None,
+            _chan0: self._chan0,
+            _chan1: self._chan1,
             _mode: PhantomData,
             _dma_mode: PhantomData,
         }
     }
 
-    pub fn to_cbc(self) -> AesAdv<ModeCBC, NoDma> {
+    pub fn to_cbc(self) -> AesAdv<ModeCBC, DMA> {
         self._aes.aesadv_ctrl().write(|w| {
             w.save_cntxt().no_effect();
             w.cbc().enable();
@@ -123,7 +127,7 @@ impl AesAdv<UnInit, NoDma> {
             w.dir().encrypt()
         });
 
-        AesAdv::<ModeCBC, NoDma> {
+        AesAdv::<ModeCBC, DMA> {
             _aes: self._aes,
             _chan0: self._chan0,
             _chan1: self._chan1,
@@ -134,11 +138,7 @@ impl AesAdv<UnInit, NoDma> {
 }
 
 impl<MODE: AesMode> AesAdv<MODE, NoDma> {
-    pub fn use_dma(
-        self,
-        chan0: dma::Channel<0>,
-        chan1: dma::Channel<1>,
-    ) -> AesAdv<MODE, WithDma> {
+    pub fn use_dma(self, chan0: dma::Channel<0>, chan1: dma::Channel<1>) -> AesAdv<MODE, WithDma> {
         AesAdv::<MODE, WithDma> {
             _aes: self._aes,
             _chan0: Some(chan0),
@@ -150,12 +150,7 @@ impl<MODE: AesMode> AesAdv<MODE, NoDma> {
 }
 
 impl<MODE: AesMode> AesAdv<MODE, WithDma> {
-    pub fn dma_preconfig(
-        &self,
-        dma: &dma::Dma,
-        chan0: &dma::Channel<0>,
-        chan1: &dma::Channel<1>,
-    ) {
+    pub fn dma_preconfig(&self, dma: &dma::Dma, chan0: &dma::Channel<0>, chan1: &dma::Channel<1>) {
         self._aes
             .aesadv_dma_hs()
             .write(|w| w.dma_data_ack().dma_disable());
@@ -170,11 +165,30 @@ impl<MODE: AesMode> AesAdv<MODE, WithDma> {
         dma.disable(chan0);
         dma.disable(chan1);
 
-        dma.aes_init_0(chan0);
-        dma.aes_init_1(chan1);
+        dma.dma_init(
+            chan0,
+            &dma_config::DmaConfig {
+                src_increment: dma_config::Increment::Increment,
+                dst_increment: dma_config::Increment::Unchanged,
+                src_width: dma_config::Width::Word,
+                dst_width: dma_config::Width::Word,
+                trigger_map: dma_config::DmaTrigger::Aes0,
+            },
+        );
+
+        dma.dma_init(
+            chan1,
+            &dma_config::DmaConfig {
+                src_increment: dma_config::Increment::Unchanged,
+                dst_increment: dma_config::Increment::Increment,
+                src_width: dma_config::Width::Word,
+                dst_width: dma_config::Width::Word,
+                trigger_map: dma_config::DmaTrigger::Aes1,
+            },
+        );
     }
 
-    pub fn dma_postconfig(&self, dma: &dma::Dma, chan0: &dma::Channel<0>) {
+    pub fn dma_postconfig(&self, dma: &dma::Dma, chan1: &dma::Channel<1>) {
         self._aes
             .aesadv_dma_hs()
             .write(|w| w.dma_data_ack().dma_enable());
@@ -189,7 +203,7 @@ impl<MODE: AesMode> AesAdv<MODE, WithDma> {
             .aesadv_int_event2_imask()
             .write(|w| w.trig1().set_());
 
-        dma.aes_wait(chan0);
+        dma.dma_wait(chan1);
     }
 }
 

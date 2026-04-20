@@ -1,13 +1,9 @@
-use crate::aes::{AesAdv, AesFunctionError, ModeCBC, NoDma, UsesDma, WithDma};
+use crate::aes::{AesAdv, AesFunctionError, ModeCBC};
 use crate::dma;
+use crate::dma::{NoDma, UsesDma, WithDma};
 
 impl AesAdv<ModeCBC, NoDma> {
-    pub fn encrypt(
-        &self,
-        data: &[u32; 4],
-        out_buf: &mut [u32; 4],
-        iv: &[u32; 4],
-    ) {
+    pub fn encrypt(&self, data: &[u32; 4], out_buf: &mut [u32; 4], iv: &[u32; 4]) {
         while self._aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
         self.reset_cntxt(iv);
         self._aes.aesadv_ctrl().modify(|_, w| w.dir().encrypt());
@@ -33,12 +29,7 @@ impl AesAdv<ModeCBC, NoDma> {
         out_buf[3] = self._aes.aesadv_data3().read().bits();
     }
 
-    pub fn decrypt(
-        &self,
-        data: &[u32; 4],
-        out_buf: &mut [u32; 4],
-        iv: &[u32; 4],
-    ) {
+    pub fn decrypt(&self, data: &[u32; 4], out_buf: &mut [u32; 4], iv: &[u32; 4]) {
         while self._aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
         self.reset_cntxt(iv);
         self._aes.aesadv_ctrl().modify(|_, w| w.dir().decrypt());
@@ -101,25 +92,20 @@ impl AesAdv<ModeCBC, WithDma> {
 
         while self._aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
         let data_out_addr: u32 = out_buf.as_ptr().addr() as u32;
-        let aes_data_out_addr: u32 =
-            self._aes.aesadv_data_out().as_ptr().addr() as u32;
+        let aes_data_out_addr: u32 = self._aes.aesadv_data_out().as_ptr().addr() as u32;
 
         let data_in_addr: u32 = data.as_ptr().addr() as u32;
-        let aes_data_in_addr: u32 =
-            self._aes.aesadv_data_in().as_ptr().addr() as u32;
+        let aes_data_in_addr: u32 = self._aes.aesadv_data_in().as_ptr().addr() as u32;
 
         let chan0 = self._chan0.as_ref().unwrap();
         let chan1 = self._chan1.as_ref().unwrap();
 
         self.dma_preconfig(&dma, &chan0, &chan1);
 
-        dma.aes_init_0(chan0);
-        dma.aes_init_1(chan1);
-
-        dma.aes_set(chan0, data_in_addr, aes_data_in_addr, len as u16);
+        dma.dma_set(chan0, data_in_addr, aes_data_in_addr, len as u16);
         dma.enable(chan0);
 
-        dma.aes_set(chan1, aes_data_out_addr, data_out_addr, len as u16);
+        dma.dma_set(chan1, aes_data_out_addr, data_out_addr, len as u16);
         dma.enable(chan1);
 
         self.reset_cntxt(iv);
@@ -131,7 +117,7 @@ impl AesAdv<ModeCBC, WithDma> {
             .aesadv_c_length_1()
             .write(|w| unsafe { w.bits(0) });
 
-        self.dma_postconfig(&dma, &chan0);
+        self.dma_postconfig(&dma, &chan1);
 
         Ok(())
     }
@@ -156,21 +142,20 @@ impl AesAdv<ModeCBC, WithDma> {
 
         while self._aes.aesadv_ctrl().read().cntxt_rdy().is_notready() {}
         let data_out_addr: u32 = out_buf.as_ptr().addr() as u32;
-        let aes_data_out_addr: u32 =
-            self._aes.aesadv_data_out().as_ptr().addr() as u32;
+        let aes_data_out_addr: u32 = self._aes.aesadv_data_out().as_ptr().addr() as u32;
 
         let data_in_addr: u32 = data.as_ptr().addr() as u32;
-        let aes_data_in_addr: u32 =
-            self._aes.aesadv_data_in().as_ptr().addr() as u32;
+        let aes_data_in_addr: u32 = self._aes.aesadv_data_in().as_ptr().addr() as u32;
 
         let chan0 = self._chan0.as_ref().unwrap();
         let chan1 = self._chan1.as_ref().unwrap();
 
         self.dma_preconfig(&dma, &chan0, &chan1);
-        dma.aes_set(chan0, data_in_addr, aes_data_in_addr, len as u16);
+
+        dma.dma_set(chan0, data_in_addr, aes_data_in_addr, len as u16);
         dma.enable(chan0);
 
-        dma.aes_set(chan1, aes_data_out_addr, data_out_addr, len as u16);
+        dma.dma_set(chan1, aes_data_out_addr, data_out_addr, len as u16);
         dma.enable(chan1);
 
         self.reset_cntxt(iv);
@@ -182,7 +167,7 @@ impl AesAdv<ModeCBC, WithDma> {
             .aesadv_c_length_1()
             .write(|w| unsafe { w.bits(0) });
 
-        self.dma_postconfig(&dma, &chan0);
+        self.dma_postconfig(&dma, &chan1);
         Ok(())
     }
 }

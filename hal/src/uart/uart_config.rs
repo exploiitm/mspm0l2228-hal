@@ -1,12 +1,11 @@
 pub struct UartConfig {
-    pub mode: UartMode, // Communication mode and protocol
-    pub direction: UartDirection, // TX/RX enable configuration
+    pub mode: UartMode,                // Communication mode and protocol
+    pub direction: UartDirection,      // TX/RX enable configuration
     pub flow_control: UartFlowControl, // Flow control configuration
-    pub parity: UartParity, // Parity configuration
-    pub word_length: UartWordLength, // Word length
-    pub stop_bits: UartStopBits, // Stop bits configuration
-    pub integer_divisor: u16,
-    pub fractional_divisor: u8,
+    pub parity: UartParity,            // Parity configuration
+    pub word_length: UartWordLength,   // Word length
+    pub stop_bits: UartStopBits,       // Stop bits configuration
+    pub baud_rate: BaudRate,
     pub enable_fifo: bool,
     pub oversampling_rate: UartOversamplingRate,
     pub rxfifo_level: RxFifoLevel,
@@ -23,8 +22,7 @@ impl Default for UartConfig {
             parity: UartParity::None,
             word_length: UartWordLength::Bits8,
             stop_bits: UartStopBits::One,
-            integer_divisor: 208,
-            fractional_divisor: 21,
+            baud_rate: BaudRate::preset_115200(),
             enable_fifo: true,
             oversampling_rate: UartOversamplingRate::Rate16x,
             rxfifo_level: RxFifoLevel::Full,
@@ -148,6 +146,28 @@ impl Default for UartClockConfig {
         UartClockConfig {
             source: UartClock::BusClk,
             divider: UartClockDivide::Div1,
+        }
+    }
+}
+
+pub struct BaudRate {
+    pub integer_divisor: u16,
+    pub fractional_divisor: u8,
+}
+
+impl BaudRate {
+    // Works for default clock, over_sampling and clockdiv values
+    pub fn preset_115200() -> Self {
+        BaudRate {
+            integer_divisor: 17,
+            fractional_divisor: 23,
+        }
+    }
+
+    pub fn preset_230400() -> Self {
+        BaudRate {
+            integer_divisor: 8,
+            fractional_divisor: 44,
         }
     }
 }

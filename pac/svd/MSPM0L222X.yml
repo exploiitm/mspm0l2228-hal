@@ -2,6 +2,118 @@ _svd: "./MSPM0L222X.svd"
 
 _delete:
   - ADC0
+  - ADC0_SVT
+  - VREF
+  - TIMG0
+  - TIMG4
+  - TIMG5
+  - TIMG8
+  - TIMG12
+  - I2C1
+  - I2C2
+  - LCD
+  - UART2
+  - UART3
+  - UART4
+  - COMP0
+  - SPI0
+  - SPI1
+  - LFSS
+  - TIMA0
+  - WUC
+
+_add:
+  FACTORYREGION:
+    baseAddress: 0x41C40000
+    addressBlock:
+      offset: 0x0
+      size: 0x80
+      usage: registers
+    registers:
+      TRACEID:
+        addressOffset: 0x0
+        size: 32
+        access: read-only
+        description: "Unique value per device shipped"
+      DEVICEID:
+        addressOffset: 0x4
+        size: 32
+        access: read-only
+        description: "Device Identifier"
+        fields:
+          MANAFACTURER:
+            description: "TI's JEDEC bank and company code"
+            bitOffset: 1
+            bitWidth: 11
+            resetValue: 0x17
+          PARTNUM:
+            description: "Part number of the device"
+            bitOffset: 12
+            bitWidth: 16
+            resetValue: 0xBB88
+          VERSION:
+            description: "Revision of this device"
+            bitOffset: 28
+            bitWidth: 4
+            resetValue: 0x0
+      USERID:
+        addressOffset: 0x8
+        size: 32
+        access: read-only
+        description: "User ID"
+        fields:
+          PART:
+            description: "Bit pattern that uniquely identifying a part"
+            bitOffset: 0
+            bitWidth: 16
+            resetValue: 0
+          VARIANT:
+            description: "Bit pattern uniquely identifying the variant for the part"
+            bitOffset: 16
+            bitWidth: 8
+            resetValue: 0
+          MINORREV:
+            description: "Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used."
+            bitOffset: 24
+            bitWidth: 4
+            resetValue: 0
+          MAJORREV:
+            description: "Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design"
+            bitOffset: 28
+            bitWidth: 3
+            resetValue: 0
+      SRAMFLASH:
+        addressOffset: 0x18
+        size: 32
+        access: read-only
+        description: "SRAM flash"
+        fields:
+          MAINFLASH_SZ:
+            description: |
+              The encoding of the field is that value of the field is an interger to be interpreted as number of KB.
+              For example, if the value of the field id 4, then it is 4KB, the value is 32KB, and so on.
+            bitOffset: 0
+            bitWidth: 11
+            resetValue: 0x80
+          MAINNUMBANKS:
+            bitOffset: 12
+            bitWidth: 2
+          SRAM_SZ:
+            description: |
+              The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+              For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+            bitOffset: 16
+            bitWidth: 10
+            resetValue: 0x20
+          DATAFLASH_SZ:
+            description: |
+              The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+              For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+            bitOffset: 26
+            bitWidth: 6
+            resetValue: 0x0
+
+
 
 # The CTR_WIDTH field in the AESADV_CTRL register has different uses depending
 # on whether the CTR or CFB fields are set. The SVD file does not handle all
@@ -70,49 +182,6 @@ AESADV:
       AESADV:
         value: 28
 
-COMP0:
-  # According to the vendor, the COMP0_CPU_INT_IIDX.STAT field has enumerated
-  # values set to 0, 2, 3, 4 when the field itself is only 2 bits wide.
-  # We're going to assume that the values are actually 0, 1, 2, 3.
-  "COMP0_CPU_INT\\[%s\\]":
-    COMP0_CPU_INT_IIDX:
-      _delete: STAT
-      _add:
-        STAT:
-          description: "Interrupt index status"
-          bitOffset: 0
-          bitWidth: 2
-          access: read-only
-      STAT:
-        _read:
-          NO_INTR: [0x0, "No pending interrupt"]
-          COMPIFG: [0x1, "Comparator output interrupt"]
-          COMPINVIFG: [0x2, "Comparator output inverted interrupt"]
-          OUTRDYIFG: [0x3, "Comparator output ready interrupt"]
-  # According to the vendor, the COMP0_GEN_EVENT_IIDX.STAT field has enumerated
-  # values set to 0, 2, 3, 4 when the field itself is only 2 bits wide.
-  # We're going to assume that the values are actually 0, 1, 2, 3.
-  "COMP0_GEN_EVENT\\[%s\\]":
-    COMP0_GEN_EVENT_IIDX:
-      _delete: STAT
-      _add:
-        STAT:
-          description: "Interrupt index status"
-          bitOffset: 0
-          bitWidth: 2
-          access: read-only
-      STAT:
-        _read:
-          NO_INTR: [0x0, "No pending interrupt"]
-          COMPIFG: [0x1, "Comparator output interrupt"]
-          COMPINVIFG: [0x2, "Comparator output inverted interrupt"]
-          OUTRDYIFG: [0x3, "Comparator output ready interrupt"]
-  _add:
-    _interrupts:
-      INT_GROUP1:
-        description: "COMP0 interrupt (group 1, IIDX 2)"
-        value: 1
-
 # Add missing <interrupts> definitions
 # Taken from 8.9.3 Interrupt Mapping in the MSPM0L222x Datasheet (Rev. A)
 # Interrupt Group 0
@@ -134,6 +203,10 @@ FLASHCTL:
       INT_GROUP0:
         description: "FLASHCTL interrupt (group 0, IIDX 3)"
         value: 0
+        
+      
+
+      
 # TODO: Event Subscriber Port 0 (FSUB0)
 # TODO: Event Subscriber Port 1 (FSUB1)
 SYSCTL:
@@ -255,65 +328,7 @@ GPIOC:
           LOCK: [0x0, "Lock reset"]
           UNLOCK: [0xB1, "Unlock reset"]
 # Individual interrupts
-TIMG12:
-  _add:
-    _interrupts:
-      TIMG12:
-        value: 2
-UART4:
-  _add:
-    _interrupts:
-      UART4:
-        value: 3
-SPI0:
-  _add:
-    _interrupts:
-      SPI0:
-        value: 9
-  "SPI0_GPRCM\\[%s\\]":
-    SPI0_PWREN:
-      _add:
-        KEY_UNLOCK:
-          description: "Key unlock for SPI0 power enable"
-          bitOffset: 24
-          bitWidth: 8
-      KEY_UNLOCK:
-        LOCK: [0x0, "Lock pwren"]
-        UNLOCK: [0x26, "Unlock pwren"]
-    SPI0_CLKCFG:
-      _add:
-        KEY_UNLOCK:
-          description: "Key unlock for SPI0 clock config"
-          bitOffset: 24
-          bitWidth: 8
-      KEY_UNLOCK:
-        LOCK: [0x0, "Lock config"]
-        UNLOCK: [0xA9, "Unlock config"]
-    SPI0_RSTCTL:
-      _add:
-        KEY_UNLOCK:
-          description: "Key unlock for SPI0 reset control"
-          bitOffset: 24
-          bitWidth: 8
-      KEY_UNLOCK:
-        _write:
-          LOCK: [0x0, "Lock reset"]
-          UNLOCK: [0xB1, "Unlock reset"]
-SPI1:
-  _add:
-    _interrupts:
-      SPI1:
-        value: 10
-UART2:
-  _add:
-    _interrupts:
-      UART2:
-        value: 13
-UART3:
-  _add:
-    _interrupts:
-      UART3:
-        value: 14
+
 UART0:
   _add:
     _interrupts:
@@ -354,58 +369,39 @@ UART1:
     _interrupts:
       UART1:
         value: 16
-TIMA0:
-  _add:
-    _interrupts:
-      TIMA0:
-        value: 18
-TIMG8:
-  _add:
-    _interrupts:
-      TIMG8:
-        value: 20
-TIMG0:
-  _add:
-    _interrupts:
-      TIMG0:
-        value: 21
-TIMG4:
-  _add:
-    _interrupts:
-      TIMG4:
-        value: 22
-TIMG5:
-  _add:
-    _interrupts:
-      TIMG5:
-        value: 23
-I2C0:
-  _add:
-    _interrupts:
-      I2C0:
-        value: 24
-I2C1:
-  _add:
-    _interrupts:
-      I2C1:
-        value: 25
-I2C2:
-  _add:
-    _interrupts:
-      I2C2:
-        value: 26
-LCD:
-  _add:
-    _interrupts:
-      LCD0:
-        value: 29
-LFSS:
-  _add:
-    _interrupts:
-      LFSS:
-        value: 30
+  "UART1_GPRCM\\[%s\\]":
+    UART1_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    UART1_CLKCFG:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 clock config"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock config"]
+        UNLOCK: [0xA9, "Unlock config"]
+    UART1_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for UART1 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
 DMA:
   _add:
     _interrupts:
       DMA0:
         value: 31
+

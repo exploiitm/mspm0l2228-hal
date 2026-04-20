@@ -6,6 +6,8 @@ edition = "2024"
 [dependencies]
 paste = "1.0.0"
 embedded-hal = "1.0.0"
+cortex-m = "0.7.7"
+arrayvec = { version = "0.7.6", default-features = false }
 
 mspm0l2228-pac = { path = "../pac" }
 chacha20 = "0.9.1"
