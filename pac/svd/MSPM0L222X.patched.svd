@@ -41159,6 +41159,2883 @@ The PEC Polynomial is x^8 + x^2 + x^1 + 1.</description>
       <registers/>
     </peripheral>
     <peripheral>
+      <name>SPI0</name>
+      <version>1.0</version>
+      <description>PERIPHERALREGION</description>
+      <groupName>SPI</groupName>
+      <baseAddress>0x40468000</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x1F00</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <cluster>
+          <dim>1</dim>
+          <dimIncrement>0x18</dimIncrement>
+          <dimArrayIndex/>
+          <name>SPI0_GPRCM[%s]</name>
+          <addressOffset>0x800</addressOffset>
+          <register>
+            <name>SPI0_PWREN</name>
+            <description>Power enable</description>
+            <addressOffset>0x0</addressOffset>
+            <size>0x20</size>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>ENABLE</name>
+                <description>Enable the power</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>DISABLE</name>
+                    <description>Disable Power</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>ENABLE</name>
+                    <description>Enable Power</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_RSTCTL</name>
+            <description>Reset Control</description>
+            <addressOffset>0x4</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RESETSTKYCLR</name>
+                <description>Clear the RESETSTKY bit in the STAT register</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>write-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NOP</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear reset sticky bit</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RESETASSERT</name>
+                <description>Assert reset to the peripheral</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>write-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NOP</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>ASSERT</name>
+                    <description>Assert reset</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CLKCFG</name>
+            <description>Peripheral Clock Configuration Register</description>
+            <addressOffset>0x8</addressOffset>
+            <size>0x20</size>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>BLOCKASYNC</name>
+                <description>Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>DISABLE</name>
+                    <description>Not block async clock request</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>ENABLE</name>
+                    <description>Block async clock request</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_GPRCM_STAT</name>
+            <description>Status Register</description>
+            <addressOffset>0x14</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <fields>
+              <field>
+                <name>RESETSTKY</name>
+                <description>This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register</description>
+                <bitOffset>16</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NORES</name>
+                    <description>The peripheral has not been reset since this bit was last cleared by RESETSTKYCLR in the RSTCTL register</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RESET</name>
+                    <description>The peripheral was reset since the last bit clear</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <register>
+          <name>SPI0_CLKDIV</name>
+          <description>Clock Divider</description>
+          <addressOffset>0x1000</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>RATIO</name>
+              <description>Selects divide ratio of module clock</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DIV_BY_1</name>
+                  <description>Do not divide clock source</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_2</name>
+                  <description>Divide clock source by 2</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_3</name>
+                  <description>Divide clock source by 3</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_4</name>
+                  <description>Divide clock source by 4</description>
+                  <value>3</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_5</name>
+                  <description>Divide clock source by 5</description>
+                  <value>4</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_6</name>
+                  <description>Divide clock source by 6</description>
+                  <value>5</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_7</name>
+                  <description>Divide clock source by 7</description>
+                  <value>6</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DIV_BY_8</name>
+                  <description>Divide clock source by 8</description>
+                  <value>7</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_CLKSEL</name>
+          <description>Clock Select for Ultra Low Power peripherals</description>
+          <addressOffset>0x1004</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>LFCLK_SEL</name>
+              <description>Selects LFCLK as clock source if enabled</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Does not select this clock as a source</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Select this clock as a source</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>MFCLK_SEL</name>
+              <description>Selects MFCLK as clock source if enabled</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Does not select this clock as a source</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Select this clock as a source</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>SYSCLK_SEL</name>
+              <description>Selects SYSCLK as clock source if enabled</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Does not select this clock as a source</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Select this clock as a source</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_PDBGCTL</name>
+          <description>Peripheral Debug Control</description>
+          <addressOffset>0x1018</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <fields>
+            <field>
+              <name>FREE</name>
+              <description>Free run control</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>STOP</name>
+                  <description>The peripheral freezes functionality while the Core Halted input is asserted and resumes when it is deasserted.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>RUN</name>
+                  <description>The peripheral ignores the state of the Core Halted input</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>SOFT</name>
+              <description>Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>IMMEDIATE</name>
+                  <description>The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DELAYED</name>
+                  <description>The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <cluster>
+          <dim>1</dim>
+          <dimIncrement>0x2C</dimIncrement>
+          <dimArrayIndex/>
+          <name>SPI0_CPU_INT[%s]</name>
+          <addressOffset>0x1020</addressOffset>
+          <register>
+            <name>SPI0_CPU_INT_IIDX</name>
+            <description>Interrupt Index Register</description>
+            <addressOffset>0x0</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>STAT</name>
+                <description>Interrupt index status</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>8</bitWidth>
+                <access>read-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_INTR</name>
+                    <description>No interrupt pending</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RXFIFO_OFV_EVT</name>
+                    <description>RX FIFO Overflow Event/interrupt pending</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>PER_EVT</name>
+                    <description>Transmit Parity Event/interrupt pending</description>
+                    <value>2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RTOUT_EVT</name>
+                    <description>SPI receive time-out interrupt</description>
+                    <value>3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RX_EVT</name>
+                    <description>Receive Event/interrupt pending</description>
+                    <value>4</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>TX_EVT</name>
+                    <description>Transmit Event/interrupt pending</description>
+                    <value>5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>TX_EMPTY</name>
+                    <description>Transmit Buffer Empty Event/interrupt pending</description>
+                    <value>6</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>IDLE_EVT</name>
+                    <description>End of Transmit Event/interrupt pending</description>
+                    <value>7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>DMA_DONE_RX_EVT</name>
+                    <description>DMA Done for Receive Event/interrupt pending</description>
+                    <value>8</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>DMA_DONE_TX_EVT</name>
+                    <description>DMA Done for Transmit Event/interrupt pending</description>
+                    <value>9</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>TXFIFO_UNF_EVT</name>
+                    <description>TX FIFO underflow interrupt</description>
+                    <value>10</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RXFULL_EVT</name>
+                    <description>RX FIFO Full Interrupt</description>
+                    <value>11</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CPU_INT_IMASK</name>
+            <description>Interrupt mask</description>
+            <addressOffset>0x8</addressOffset>
+            <size>0x20</size>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Receive FIFO event.This interrupt is set if the selected Receive FIFO level has been reached</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TX</name>
+                <description>Transmit FIFO event mask.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXEMPTY</name>
+                <description>Transmit FIFO Empty event mask.</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>PER</name>
+                <description>Parity error event mask.</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_RX</name>
+                <description>DMA Done 1 event for RX event mask.</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFIFO_OVF</name>
+                <description>RXFIFO overflow event mask.</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_TX</name>
+                <description>DMA Done 1 event for TX event mask.</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>IDLE</name>
+                <description>SPI Idle event mask.</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Enable SPI Receive Time-Out event mask.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFULL</name>
+                <description>RX FIFO Full Interrupt Mask</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXFIFO_UNF</name>
+                <description>TX FIFO underflow interrupt mask</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <access>read-write</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CPU_INT_RIS</name>
+            <description>Raw interrupt status</description>
+            <addressOffset>0x10</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Receive FIFO event.This interrupt is set if the selected Receive FIFO level has been reached</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TX</name>
+                <description>Transmit FIFO event..This interrupt is set if the selected Transmit FIFO level has been reached.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXEMPTY</name>
+                <description>Transmit FIFO Empty interrupt mask. This interrupt is set if all data in the Transmit FIFO have been move to the shift register.</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>PER</name>
+                <description>Parity error event: this bit is set if a Parity error has been detected</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_RX</name>
+                <description>DMA Done 1 event for RX. This interrupt is set if the RX DMA channel sends the DONE signal. This allows the handling of the DMA event inside the mapped peripheral.</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFIFO_OVF</name>
+                <description>RXFIFO overflow event. This interrupt is set if an RX FIFO overflow has been detected.</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_TX</name>
+                <description>DMA Done 1 event for TX. This interrupt is set if the TX DMA channel sends the DONE signal. This allows the handling of the DMA event inside the mapped peripheral.</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>IDLE</name>
+                <description>SPI has done finished transfers and changed into IDLE mode. This bit is set when BUSY goes low.</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>SPI Receive Time-Out event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXFIFO_UNF</name>
+                <description>TX FIFO Underflow Interrupt</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFULL</name>
+                <description>RX FIFO Full Interrupt</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CPU_INT_MIS</name>
+            <description>Masked interrupt status</description>
+            <addressOffset>0x18</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Masked receive FIFO event.This interrupt is set if the selected Receive FIFO level has been reached</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TX</name>
+                <description>Masked Transmit FIFO event. This interrupt is set if the selected Transmit FIFO level has been reached.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXEMPTY</name>
+                <description>Masked Transmit FIFO Empty event.</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>PER</name>
+                <description>Masked Parity error event: this bit if a Parity error has been detected</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_RX</name>
+                <description>Masked DMA Done 1 event for RX.</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFIFO_OVF</name>
+                <description>Masked RXFIFO overflow event. This interrupt is set if an RX FIFO overflow has been detected.</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_TX</name>
+                <description>Masked DMA Done 1 event for TX.</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>IDLE</name>
+                <description>Masked SPI IDLE mode event.</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Masked SPI Receive Time-Out Interrupt.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFULL</name>
+                <description>RX FIFO Full Interrupt</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXFIFO_UNF</name>
+                <description>TX FIFO underflow interrupt</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CPU_INT_ISET</name>
+            <description>Interrupt set</description>
+            <addressOffset>0x20</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Set Receive FIFO event.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TX</name>
+                <description>Set Transmit FIFO event.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXEMPTY</name>
+                <description>Set Transmit FIFO Empty event.</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>PER</name>
+                <description>Set Parity error event.</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_RX</name>
+                <description>Set DMA Done 1 event for RX.</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFIFO_OVF</name>
+                <description>Set RXFIFO overflow event.</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_TX</name>
+                <description>Set DMA Done 1 event for TX.</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>IDLE</name>
+                <description>Set SPI IDLE mode event.</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Set SPI Receive Time-Out Event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXFIFO_UNF</name>
+                <description>Set TX FIFO Underflow Event</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFULL</name>
+                <description>Set RX FIFO Full Event</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_CPU_INT_ICLR</name>
+            <description>Interrupt clear</description>
+            <addressOffset>0x28</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Clear Receive FIFO event.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TX</name>
+                <description>Clear Transmit FIFO event.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXEMPTY</name>
+                <description>Clear Transmit FIFO Empty event.</description>
+                <bitOffset>5</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>PER</name>
+                <description>Clear Parity error event.</description>
+                <bitOffset>1</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_RX</name>
+                <description>Clear DMA Done 1 event for RX.</description>
+                <bitOffset>7</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFIFO_OVF</name>
+                <description>Clear RXFIFO overflow event.</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>DMA_DONE_TX</name>
+                <description>Clear DMA Done 1 event for TX.</description>
+                <bitOffset>8</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>IDLE</name>
+                <description>Clear SPI IDLE mode event.</description>
+                <bitOffset>6</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Clear SPI Receive Time-Out Event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>TXFIFO_UNF</name>
+                <description>Clear TXFIFO underflow event</description>
+                <bitOffset>9</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RXFULL</name>
+                <description>Clear RX FIFO underflow event</description>
+                <bitOffset>10</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <dim>1</dim>
+          <dimIncrement>0x2C</dimIncrement>
+          <dimArrayIndex/>
+          <name>SPI0_DMA_TRIG_RX[%s]</name>
+          <addressOffset>0x1050</addressOffset>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_IIDX</name>
+            <description>Interrupt Index Register</description>
+            <addressOffset>0x0</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>STAT</name>
+                <description>Interrupt index status</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>8</bitWidth>
+                <access>read-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_INTR</name>
+                    <description>No interrupt pending</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RTOUT_EVT</name>
+                    <description>SPI receive time-out interrupt</description>
+                    <value>3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>RX_EVT</name>
+                    <description>Receive Event/interrupt pending</description>
+                    <value>4</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_IMASK</name>
+            <description>Interrupt mask</description>
+            <addressOffset>0x8</addressOffset>
+            <size>0x20</size>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Receive FIFO event mask.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>SPI Receive Time-Out event mask.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_RIS</name>
+            <description>Raw interrupt status</description>
+            <addressOffset>0x10</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Receive FIFO event.This interrupt is set if the selected Receive FIFO level has been reached</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>SPI Receive Time-Out Event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_MIS</name>
+            <description>Masked interrupt status</description>
+            <addressOffset>0x18</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Receive FIFO event mask.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>SPI Receive Time-Out event mask.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_ISET</name>
+            <description>Interrupt set</description>
+            <addressOffset>0x20</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Set Receive FIFO event.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Set SPI Receive Time-Out event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_RX_ICLR</name>
+            <description>Interrupt clear</description>
+            <addressOffset>0x28</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>RX</name>
+                <description>Clear Receive FIFO event.</description>
+                <bitOffset>3</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>RTOUT</name>
+                <description>Clear SPI Receive Time-Out event.</description>
+                <bitOffset>2</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <dim>1</dim>
+          <dimIncrement>0x2C</dimIncrement>
+          <dimArrayIndex/>
+          <name>SPI0_DMA_TRIG_TX[%s]</name>
+          <addressOffset>0x1080</addressOffset>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_IIDX</name>
+            <description>Interrupt Index Register</description>
+            <addressOffset>0x0</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>STAT</name>
+                <description>Interrupt index status</description>
+                <bitOffset>0</bitOffset>
+                <bitWidth>8</bitWidth>
+                <access>read-only</access>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_INTR</name>
+                    <description>No interrupt pending</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>TX_EVT</name>
+                    <description>Transmit Event/interrupt pending</description>
+                    <value>5</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_IMASK</name>
+            <description>Interrupt mask</description>
+            <addressOffset>0x8</addressOffset>
+            <size>0x20</size>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>TX</name>
+                <description>Transmit FIFO event mask.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt Mask</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt Mask</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_RIS</name>
+            <description>Raw interrupt status</description>
+            <addressOffset>0x10</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <fields>
+              <field>
+                <name>TX</name>
+                <description>Transmit FIFO event:
+A read returns the current mask for transmit FIFO interrupt. On a write of 1, the mask for transmit FIFO interrupt is set which means the interrupt state will be reflected in MIS.TXMIS. A write of 0 clears the mask which means MIS.TXMIS will not reflect the interrupt.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_MIS</name>
+            <description>Masked interrupt status</description>
+            <addressOffset>0x18</addressOffset>
+            <size>0x20</size>
+            <access>read-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>TX</name>
+                <description>Masked Transmit FIFO event</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Interrupt did not occur</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Interrupt occurred</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_ISET</name>
+            <description>Interrupt set</description>
+            <addressOffset>0x20</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>TX</name>
+                <description>Set Transmit FIFO event.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SET</name>
+                    <description>Set Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>SPI0_DMA_TRIG_TX_ICLR</name>
+            <description>Interrupt clear</description>
+            <addressOffset>0x28</addressOffset>
+            <size>0x20</size>
+            <access>write-only</access>
+            <resetValue>0x00000000</resetValue>
+            <fields>
+              <field>
+                <name>TX</name>
+                <description>Clear Transmit FIFO event.</description>
+                <bitOffset>4</bitOffset>
+                <bitWidth>1</bitWidth>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>NO_EFFECT</name>
+                    <description>Writing 0 has no effect</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>CLR</name>
+                    <description>Clear Interrupt</description>
+                    <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <register>
+          <name>SPI0_EVT_MODE</name>
+          <description>Event Mode</description>
+          <addressOffset>0x10E0</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <fields>
+            <field>
+              <name>INT0_CFG</name>
+              <description>Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT0]</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-only</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>The interrupt or event line is disabled.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SOFTWARE</name>
+                  <description>The interrupt or event line is in software mode. Software must clear the RIS.</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HARDWARE</name>
+                  <description>The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.</description>
+                  <value>2</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>INT1_CFG</name>
+              <description>Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT1]</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-only</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>The interrupt or event line is disabled.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SOFTWARE</name>
+                  <description>The interrupt or event line is in software mode. Software must clear the RIS.</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HARDWARE</name>
+                  <description>The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.</description>
+                  <value>2</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>INT2_CFG</name>
+              <description>Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT2]</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-only</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>The interrupt or event line is disabled.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SOFTWARE</name>
+                  <description>The interrupt or event line is in software mode. Software must clear the RIS.</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HARDWARE</name>
+                  <description>The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.</description>
+                  <value>2</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_INTCTL</name>
+          <description>Interrupt control register</description>
+          <addressOffset>0x10E4</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <fields>
+            <field>
+              <name>INTEVAL</name>
+              <description>Writing a 1 to this field re-evaluates the interrupt sources.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>write-only</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>The interrupt or event line is disabled.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>EVAL</name>
+                  <description>The interrupt or event line is in software mode. Software must clear the RIS.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_CTL0</name>
+          <description>SPI control register 0</description>
+          <addressOffset>0x1100</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>DSS</name>
+              <description>Data Size Select.
+Values 0 - 2 are reserved and shall not be used.
+3h = 4_BIT : 4-bit data
+SPI allows only values up to 16 Bit</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>5</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DSS_4</name>
+                  <description>Data Size Select bits: 4</description>
+                  <value>3</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_5</name>
+                  <description>Data Size Select bits: 5</description>
+                  <value>4</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_6</name>
+                  <description>Data Size Select bits: 6</description>
+                  <value>5</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_7</name>
+                  <description>Data Size Select bits: 7</description>
+                  <value>6</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_8</name>
+                  <description>Data Size Select bits: 8</description>
+                  <value>7</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_9</name>
+                  <description>Data Size Select bits: 9</description>
+                  <value>8</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_10</name>
+                  <description>Data Size Select bits: 10</description>
+                  <value>9</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_11</name>
+                  <description>Data Size Select bits: 11</description>
+                  <value>10</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_12</name>
+                  <description>Data Size Select bits: 12</description>
+                  <value>11</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_13</name>
+                  <description>Data Size Select bits: 13</description>
+                  <value>12</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_14</name>
+                  <description>Data Size Select bits: 14</description>
+                  <value>13</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_15</name>
+                  <description>Data Size Select bits: 15</description>
+                  <value>14</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>DSS_16</name>
+                  <description>Data Size Select bits: 16</description>
+                  <value>15</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>FRF</name>
+              <description>Frame format Select</description>
+              <bitOffset>5</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>MOTOROLA_3WIRE</name>
+                  <description>Motorola SPI frame format (3 wire mode)</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>MOTOROLA_4WIRE</name>
+                  <description>Motorola SPI frame format (4 wire mode)</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>TI_SYNC</name>
+                  <description>TI synchronous serial frame format</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>MIRCOWIRE</name>
+                  <description>National Microwire frame format</description>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>SPO</name>
+              <description>CLKOUT polarity (Motorola SPI frame format only)</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>LOW</name>
+                  <description>SPI produces a steady state LOW value on the CLKOUT</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HIGH</name>
+                  <description>SPI produces a steady state HIGH value on the CLKOUT</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>SPH</name>
+              <description>CLKOUT phase (Motorola SPI frame format only)
+This bit selects the clock edge that captures data and enables it to change state. It
+has the most impact on the first bit transmitted by either permitting or not permitting a clock transition before the first data capture edge.</description>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>FIRST</name>
+                  <description>Data is captured on the first clock edge transition.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SECOND</name>
+                  <description>Data is captured on the second clock edge transition.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>CSSEL</name>
+              <description>Select the CS line to control on data transfer
+This bit is applicable for both controller/target mode</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>2</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>CSSEL_0</name>
+                  <description>CS line select: 0</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>CSSEL_1</name>
+                  <description>CS line select: 1</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>CSSEL_2</name>
+                  <description>CS line select: 2</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>CSSEL_3</name>
+                  <description>CS line select: 3</description>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>CSCLR</name>
+              <description>Clear shift register counter on CS inactive
+This bit is relevant only in the peripheral, CTL1.CP=0.</description>
+              <bitOffset>14</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Disable automatic clear of shift register when CS goes to disable.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Enable automatic clear of shift register when CS goes to disable.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>PACKEN</name>
+              <description>Packing Enable.
+When 1, packing feature is enabled inside the IP
+When 0, packing feature is disabled inside the IP</description>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLED</name>
+                  <description>Packing feature disabled</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLED</name>
+                  <description>Packing feature enabled</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_CTL1</name>
+          <description>SPI control register 1</description>
+          <addressOffset>0x1104</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000004</resetValue>
+          <fields>
+            <field>
+              <name>LBM</name>
+              <description>Loop back mode</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Disable loopback mode</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Enable loopback mode</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>CP</name>
+              <description>Controller or peripheral mode select. This bit can be modified only when SPI is disabled, CTL1.ENABLE=0.</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Select Peripheral mode</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Select Controller Mode</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>POD</name>
+              <description>Peripheral-mode: Data output disabled
+This bit is relevant only in Peripheral mode. In multiple-peripheral system topologies, SPI controller can broadcast a message to all peripherals, while only one peripheral drives the line. 
+POD can be used by the SPI peripheral to disable driving data on the line.</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>SPI can drive the MISO output in peripheral mode.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>SPI cannot drive the MISO output in peripheral mode.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>MSB</name>
+              <description>MSB first select. Controls the direction of the receive and transmit shift register.</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>LSB first</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>MSB first</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>PREN</name>
+              <description>Parity receive enable
+If enabled, parity reception check will be done for both controller and peripheral modes
+In case of a parity miss-match the parity error flag RIS.PER will be set.</description>
+              <bitOffset>5</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Disable Parity receive function</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Enable Parity receive function</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>REPEATTX</name>
+              <description>Counter to repeat last transfer
+0: repeat last transfer is disabled.
+x: repeat the last transfer with the given number.
+The transfer will be started with writing a data into the TX Buffer. Sending the data will be repeated with the given value, so the data will be transferred X+1 times in total.
+The behavior is identical as if the data would be written into the TX Buffer that many times as defined by the value here.
+It can be used to clean a transfer or to pull a certain amount of data by a peripheral.</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>8</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>REPEATTX disable</description>
+                  <value>0</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>PES</name>
+              <description>Even Parity Select</description>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Odd Parity mode</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Even Parity mode</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>CDMODE</name>
+              <description>Command/Data Mode Value
+
+When CTL1.CDENABLE is 1, CS3 line is used as C/D signal to distinguish between Command (C/D low) and Data (C/D high) information.
+
+When a value is written into the CTL1.CDMODE bits, the C/D (CS3) line will go low for the given numbers of byte which are sent by the SPI, starting with the next value to be transmitted after which, C/D line will go high automatically
+
+0: Manual mode with C/D signal as High
+1-14: C/D is low while this number of bytes are being sent after which, this field sets to 0 and C/D goes high. Reading this field at any time returns the remaining number of command bytes.
+15: Manual mode with C/D signal as Low.</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DATA</name>
+                  <description>Manual mode: Data</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>COMMAND</name>
+                  <description>Manual mode: Command</description>
+                  <value>15</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>ENABLE</name>
+              <description>SPI enable</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Disable module function</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Enable module function</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RXTIMEOUT</name>
+              <description>Receive Timeout (only for Peripheral mode)
+Defines the number of Clock Cycles before after which the Receive Timeout flag RTOUT is set.
+The time is calculated using the control register for the clock selection and divider in the Controller mode configuration.
+A value of 0 disables this function.</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>6</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>CDENABLE</name>
+              <description>Command/Data Mode enable</description>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>CS3 is used for Chip Select</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>CS3 is used as CD signal</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>PTEN</name>
+              <description>Parity transmit enable
+If enabled, parity transmission will be done for both controller and peripheral modes.</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>DISABLE</name>
+                  <description>Parity transmission is disabled</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ENABLE</name>
+                  <description>Parity transmission is enabled</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_CLKCTL</name>
+          <description>Clock prescaler and divider register.</description>
+          <addressOffset>0x1108</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>SCR</name>
+              <description>Serial clock divider:
+This is used to generate the transmit and receive bit rate of the SPI.
+The SPI bit rate is
+(SPI's functional clock frequency)/((SCR+1)*2).
+SCR is a value from 0-1023.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>10</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>DSAMPLE</name>
+              <description>Delayed sampling value. 
+In controller mode the data on the input pin will be delayed sampled by the defined clock cycles of internal functional clock hence relaxing the setup time of input data. This setting is useful in systems where the board delays and external peripheral delays are more than the input setup time of the controller. Please refer to the datasheet for values of controller input setup time and assess what DSAMPLE value meets the requirement of the system.
+Note: High values of DSAMPLE can cause HOLD time violations and must be factored in the calculations.</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>4</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_IFLS</name>
+          <description>Interrupt FIFO Level Select Register</description>
+          <addressOffset>0x110C</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000012</resetValue>
+          <resetMask>0xFFFFFFFF</resetMask>
+          <fields>
+            <field>
+              <name>TXIFLSEL</name>
+              <description>SPI Transmit Interrupt FIFO Level Select  The trigger points for the transmit interrupt are as follows:</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>LVL_OFF</name>
+                  <description>Reserved</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_3_4</name>
+                  <description>TX FIFO &lt;= 3/4 empty</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_1_2</name>
+                  <description>TX FIFO &lt;= 1/2 empty (default)</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_1_4</name>
+                  <description>TX FIFO &lt;= 1/4 empty</description>
+                  <value>3</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_RES4</name>
+                  <description>Reserved</description>
+                  <value>4</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_EMPTY</name>
+                  <description>TX FIFO is empty</description>
+                  <value>5</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_RES6</name>
+                  <description>Reserved</description>
+                  <value>6</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LEVEL_1</name>
+                  <description>Trigger when TX FIFO has &gt;= 1 frame free
+Should be used with DMA</description>
+                  <value>7</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RXIFLSEL</name>
+              <description>SPI Receive Interrupt FIFO Level Select  The trigger points for the receive interrupt are as follows:</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>3</bitWidth>
+              <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>LVL_OFF</name>
+                  <description>Reserved</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_1_4</name>
+                  <description>RX FIFO &gt;= 1/4 full</description>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_1_2</name>
+                  <description>RX FIFO &gt;= 1/2 full (default)</description>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_3_4</name>
+                  <description>RX FIFO &gt;= 3/4 full</description>
+                  <value>3</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_RES4</name>
+                  <description>Reserved</description>
+                  <value>4</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_FULL</name>
+                  <description>RX FIFO is full</description>
+                  <value>5</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LVL_RES6</name>
+                  <description>Reserved</description>
+                  <value>6</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LEVEL_1</name>
+                  <description>Trigger when RX FIFO contains &gt;= 1 frame</description>
+                  <value>7</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_STAT</name>
+          <description>Status Register</description>
+          <addressOffset>0x1110</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>TFE</name>
+              <description>Transmit FIFO empty.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NOT_EMPTY</name>
+                  <description>Transmit FIFO is not empty.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>EMPTY</name>
+                  <description>Transmit FIFO is empty.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>TNF</name>
+              <description>Transmit FIFO not full</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>FULL</name>
+                  <description>Transmit FIFO is full.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NOT_FULL</name>
+                  <description>Transmit FIFO is not full.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RFE</name>
+              <description>Receive FIFO empty.</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NOT_EMPTY</name>
+                  <description>Receive FIFO is not empty.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>EMPTY</name>
+                  <description>Receive FIFO is empty.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RNF</name>
+              <description>Receive FIFO not full</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>FULL</name>
+                  <description>Receive FIFO is full.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NOT_FULL</name>
+                  <description>Receive FIFO is not full.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSY</name>
+              <description>Busy</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>IDLE</name>
+                  <description>SPI is in idle mode.</description>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>ACTIVE</name>
+                  <description>SPI is currently transmitting and/or receiving data, or transmit FIFO is not empty.</description>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_RXDATA</name>
+          <description>RXDATA Register</description>
+          <addressOffset>0x1130</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>DATA</name>
+              <description>Received Data
+When PACKEN=1,two entries of the FIFO are returned as a 32-bit value. When PACKEN=0, 1 entry of FIFO is returned as 16-bit value.
+As data values are removed by the receive logic from the incoming data frame, they are placed into the entry in the receive FIFO, pointed to by the current FIFO write pointer.
+Received data less than 16 bits is automatically right justified in the receive buffer.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-only</access>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SPI0_TXDATA</name>
+          <description>TXDATA Register</description>
+          <addressOffset>0x1140</addressOffset>
+          <size>0x20</size>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <fields>
+            <field>
+              <name>DATA</name>
+              <description>Transmit Data
+
+When read, last written value will be returned. If the last write to this field was a 32-bit write (with PACKEN=1), 32-bits will be returned and if the last write was a 16-bit write (PACKEN=0), those 16-bits will be returned.  
+
+When written, one or two FIFO entries will be written depending on PACKEN value. Data values are removed from the transmit FIFO one value at a time by the transmit logic. It is loaded into the transmit serial shifter, then serially shifted out onto the TXD output pin at the programmed bit rate. 
+
+When a data size of less than 16 bits is selected, the user must right-justify data written to the transmit FIFO. The transmit logic ignores the unused bits.</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+              <access>read-write</access>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral>
+      <name>FACTORYREGION</name>
+      <baseAddress>0x41C40000</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x80</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <register>
+          <name>TRACEID</name>
+          <description>Unique value per device shipped</description>
+          <addressOffset>0x0</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+        </register>
+        <register>
+          <name>DEVICEID</name>
+          <description>Device Identifier</description>
+          <addressOffset>0x4</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>MANAFACTURER</name>
+              <description>TI's JEDEC bank and company code</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>11</bitWidth>
+            </field>
+            <field>
+              <name>PARTNUM</name>
+              <description>Part number of the device</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>16</bitWidth>
+            </field>
+            <field>
+              <name>VERSION</name>
+              <description>Revision of this device</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>4</bitWidth>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>USERID</name>
+          <description>User ID</description>
+          <addressOffset>0x8</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>PART</name>
+              <description>Bit pattern that uniquely identifying a part</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>16</bitWidth>
+            </field>
+            <field>
+              <name>VARIANT</name>
+              <description>Bit pattern uniquely identifying the variant for the part</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>8</bitWidth>
+            </field>
+            <field>
+              <name>MINORREV</name>
+              <description>Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used.</description>
+              <bitOffset>24</bitOffset>
+              <bitWidth>4</bitWidth>
+            </field>
+            <field>
+              <name>MAJORREV</name>
+              <description>Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design</description>
+              <bitOffset>28</bitOffset>
+              <bitWidth>3</bitWidth>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SRAMFLASH</name>
+          <description>SRAM flash</description>
+          <addressOffset>0x18</addressOffset>
+          <size>0x20</size>
+          <access>read-only</access>
+          <fields>
+            <field>
+              <name>MAINFLASH_SZ</name>
+              <description>The encoding of the field is that value of the field is an interger to be interpreted as number of KB.
+For example, if the value of the field id 4, then it is 4KB, the value is 32KB, and so on.
+</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>11</bitWidth>
+            </field>
+            <field>
+              <name>MAINNUMBANKS</name>
+              <bitOffset>12</bitOffset>
+              <bitWidth>2</bitWidth>
+            </field>
+            <field>
+              <name>SRAM_SZ</name>
+              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+</description>
+              <bitOffset>16</bitOffset>
+              <bitWidth>10</bitWidth>
+            </field>
+            <field>
+              <name>DATAFLASH_SZ</name>
+              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
+For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
+</description>
+              <bitOffset>26</bitOffset>
+              <bitWidth>6</bitWidth>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral>
       <name>KEYSTORECTL</name>
       <version>1.0</version>
       <description>PERIPHERALREGION</description>
@@ -42331,122 +45208,6 @@ Bit 1 - decim_test1 (decim = 0x1) ...</description>
                   <value>7</value>
                 </enumeratedValue>
               </enumeratedValues>
-            </field>
-          </fields>
-        </register>
-      </registers>
-    </peripheral>
-    <peripheral>
-      <name>FACTORYREGION</name>
-      <baseAddress>0x41C40000</baseAddress>
-      <addressBlock>
-        <offset>0x0</offset>
-        <size>0x80</size>
-        <usage>registers</usage>
-      </addressBlock>
-      <registers>
-        <register>
-          <name>TRACEID</name>
-          <description>Unique value per device shipped</description>
-          <addressOffset>0x0</addressOffset>
-          <size>0x20</size>
-          <access>read-only</access>
-        </register>
-        <register>
-          <name>DEVICEID</name>
-          <description>Device Identifier</description>
-          <addressOffset>0x4</addressOffset>
-          <size>0x20</size>
-          <access>read-only</access>
-          <fields>
-            <field>
-              <name>MANAFACTURER</name>
-              <description>TI's JEDEC bank and company code</description>
-              <bitOffset>1</bitOffset>
-              <bitWidth>11</bitWidth>
-            </field>
-            <field>
-              <name>PARTNUM</name>
-              <description>Part number of the device</description>
-              <bitOffset>12</bitOffset>
-              <bitWidth>16</bitWidth>
-            </field>
-            <field>
-              <name>VERSION</name>
-              <description>Revision of this device</description>
-              <bitOffset>28</bitOffset>
-              <bitWidth>4</bitWidth>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>USERID</name>
-          <description>User ID</description>
-          <addressOffset>0x8</addressOffset>
-          <size>0x20</size>
-          <access>read-only</access>
-          <fields>
-            <field>
-              <name>PART</name>
-              <description>Bit pattern that uniquely identifying a part</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-            </field>
-            <field>
-              <name>VARIANT</name>
-              <description>Bit pattern uniquely identifying the variant for the part</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>8</bitWidth>
-            </field>
-            <field>
-              <name>MINORREV</name>
-              <description>Monotonic increasing value indicating a new revision of the SKU that preserves compatability with lesser minor rev values. New capability may be introduced such that lesser minor rev numbers may not be compatible with greater if the new capability is used.</description>
-              <bitOffset>24</bitOffset>
-              <bitWidth>4</bitWidth>
-            </field>
-            <field>
-              <name>MAJORREV</name>
-              <description>Monotonic increasing value indiciating a new revision of the SKU significant enough that users of the device may have tro revise PCB or software design</description>
-              <bitOffset>28</bitOffset>
-              <bitWidth>3</bitWidth>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>SRAMFLASH</name>
-          <description>SRAM flash</description>
-          <addressOffset>0x18</addressOffset>
-          <size>0x20</size>
-          <access>read-only</access>
-          <fields>
-            <field>
-              <name>MAINFLASH_SZ</name>
-              <description>The encoding of the field is that value of the field is an interger to be interpreted as number of KB.
-For example, if the value of the field id 4, then it is 4KB, the value is 32KB, and so on.
-</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>11</bitWidth>
-            </field>
-            <field>
-              <name>MAINNUMBANKS</name>
-              <bitOffset>12</bitOffset>
-              <bitWidth>2</bitWidth>
-            </field>
-            <field>
-              <name>SRAM_SZ</name>
-              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
-For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
-</description>
-              <bitOffset>16</bitOffset>
-              <bitWidth>10</bitWidth>
-            </field>
-            <field>
-              <name>DATAFLASH_SZ</name>
-              <description>The encoding of the field is that the value of the field is an integer to be interpreted as number of KB.
-For example id 4, then it is 4KB, if the value is 32, then 32KB, and so on.
-</description>
-              <bitOffset>26</bitOffset>
-              <bitWidth>6</bitWidth>
             </field>
           </fields>
         </register>

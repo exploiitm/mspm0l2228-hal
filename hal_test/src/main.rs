@@ -28,6 +28,7 @@ fn delay(millis: u32) {
 #[entry]
 fn main() -> ! {
     let p = pac::Peripherals::take().unwrap();
+
     let gpioa = mspm0l2228_hal::gpio::gpioa::new(p.gpioa);
     let gpiob = mspm0l2228_hal::gpio::gpiob::new(p.gpiob);
     let gpioa_pins = gpioa.pins();
@@ -39,6 +40,8 @@ fn main() -> ! {
     blue_led.set_high();
     let trng = mspm0l2228_hal::trng::Trng::new(p.trng, trng::ClockDiv::Div2, 0x3);
     blue_led.set_low();
+
+    let spi = mspm0l2228_hal::spi::SPI0::new(p.spi0, &p.iomux);
 
     match trng {
         Ok(trng) => loop {
@@ -56,6 +59,8 @@ fn main() -> ! {
                 2 => green_led.set_low(),
                 _ => (),
             };
+
+            delay(100);
         },
         Err(trng::TrngInitError::AnalogBlockHealthCheck) => loop {
             red_led.set_high();

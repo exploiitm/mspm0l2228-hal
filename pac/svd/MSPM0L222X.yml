@@ -14,7 +14,6 @@ _delete:
   - UART3
   - UART4
   - COMP0
-  - SPI0
   - SPI1
   - LFSS
   - TIMA0
