@@ -1,1 +1,51 @@
-# [repr (C)] # [doc = "Register block"] pub struct RegisterBlock { traceid : Traceid , deviceid : Deviceid , userid : Userid , _reserved3 : [u8 ; 0x0c] , sramflash : Sramflash , } impl RegisterBlock { # [doc = "0x00 - Unique value per device shipped"] # [inline (always)] pub const fn traceid (& self) -> & Traceid { & self . traceid } # [doc = "0x04 - Device Identifier"] # [inline (always)] pub const fn deviceid (& self) -> & Deviceid { & self . deviceid } # [doc = "0x08 - User ID"] # [inline (always)] pub const fn userid (& self) -> & Userid { & self . userid } # [doc = "0x18 - SRAM flash"] # [inline (always)] pub const fn sramflash (& self) -> & Sramflash { & self . sramflash } } # [doc = "TRACEID (r) register accessor: Unique value per device shipped\n\nYou can [`read`](crate::Reg::read) this register and get [`traceid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@traceid`] module"] # [doc (alias = "TRACEID")] pub type Traceid = crate :: Reg < traceid :: TraceidSpec > ; # [doc = "Unique value per device shipped"] pub mod traceid ; # [doc = "DEVICEID (r) register accessor: Device Identifier\n\nYou can [`read`](crate::Reg::read) this register and get [`deviceid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@deviceid`] module"] # [doc (alias = "DEVICEID")] pub type Deviceid = crate :: Reg < deviceid :: DeviceidSpec > ; # [doc = "Device Identifier"] pub mod deviceid ; # [doc = "USERID (r) register accessor: User ID\n\nYou can [`read`](crate::Reg::read) this register and get [`userid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@userid`] module"] # [doc (alias = "USERID")] pub type Userid = crate :: Reg < userid :: UseridSpec > ; # [doc = "User ID"] pub mod userid ; # [doc = "SRAMFLASH (r) register accessor: SRAM flash\n\nYou can [`read`](crate::Reg::read) this register and get [`sramflash::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@sramflash`] module"] # [doc (alias = "SRAMFLASH")] pub type Sramflash = crate :: Reg < sramflash :: SramflashSpec > ; # [doc = "SRAM flash"] pub mod sramflash ;
+#[repr(C)]
+#[doc = "Register block"]
+pub struct RegisterBlock {
+    traceid: Traceid,
+    deviceid: Deviceid,
+    userid: Userid,
+    _reserved3: [u8; 0x0c],
+    sramflash: Sramflash,
+}
+impl RegisterBlock {
+    #[doc = "0x00 - Unique value per device shipped"]
+    #[inline(always)]
+    pub const fn traceid(&self) -> &Traceid {
+        &self.traceid
+    }
+    #[doc = "0x04 - Device Identifier"]
+    #[inline(always)]
+    pub const fn deviceid(&self) -> &Deviceid {
+        &self.deviceid
+    }
+    #[doc = "0x08 - User ID"]
+    #[inline(always)]
+    pub const fn userid(&self) -> &Userid {
+        &self.userid
+    }
+    #[doc = "0x18 - SRAM flash"]
+    #[inline(always)]
+    pub const fn sramflash(&self) -> &Sramflash {
+        &self.sramflash
+    }
+}
+#[doc = "TRACEID (r) register accessor: Unique value per device shipped\n\nYou can [`read`](crate::Reg::read) this register and get [`traceid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@traceid`] module"]
+#[doc(alias = "TRACEID")]
+pub type Traceid = crate::Reg<traceid::TraceidSpec>;
+#[doc = "Unique value per device shipped"]
+pub mod traceid;
+#[doc = "DEVICEID (r) register accessor: Device Identifier\n\nYou can [`read`](crate::Reg::read) this register and get [`deviceid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@deviceid`] module"]
+#[doc(alias = "DEVICEID")]
+pub type Deviceid = crate::Reg<deviceid::DeviceidSpec>;
+#[doc = "Device Identifier"]
+pub mod deviceid;
+#[doc = "USERID (r) register accessor: User ID\n\nYou can [`read`](crate::Reg::read) this register and get [`userid::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@userid`] module"]
+#[doc(alias = "USERID")]
+pub type Userid = crate::Reg<userid::UseridSpec>;
+#[doc = "User ID"]
+pub mod userid;
+#[doc = "SRAMFLASH (r) register accessor: SRAM flash\n\nYou can [`read`](crate::Reg::read) this register and get [`sramflash::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@sramflash`] module"]
+#[doc(alias = "SRAMFLASH")]
+pub type Sramflash = crate::Reg<sramflash::SramflashSpec>;
+#[doc = "SRAM flash"]
+pub mod sramflash;

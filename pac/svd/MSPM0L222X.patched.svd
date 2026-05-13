@@ -41203,6 +41203,25 @@ The PEC Polynomial is x^8 + x^2 + x^1 + 1.</description>
                   </enumeratedValue>
                 </enumeratedValues>
               </field>
+              <field>
+                <name>KEY_UNLOCK</name>
+                <description>Key unlock for SPI0 power enable</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>8</bitWidth>
+                <enumeratedValues>
+                  <name>KEY_UNLOCK</name>
+                  <enumeratedValue>
+                    <name>LOCK</name>
+                    <description>Lock pwren</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>UNLOCK</name>
+                    <description>Unlock pwren</description>
+                    <value>38</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
             </fields>
           </register>
           <register>
@@ -41248,6 +41267,25 @@ The PEC Polynomial is x^8 + x^2 + x^1 + 1.</description>
                     <name>ASSERT</name>
                     <description>Assert reset</description>
                     <value>1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>KEY_UNLOCK</name>
+                <description>Key unlock for SPI0 reset control</description>
+                <bitOffset>24</bitOffset>
+                <bitWidth>8</bitWidth>
+                <enumeratedValues>
+                  <name>KEY_UNLOCKW</name>
+                  <enumeratedValue>
+                    <name>LOCK</name>
+                    <description>Lock reset</description>
+                    <value>0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>UNLOCK</name>
+                    <description>Unlock reset</description>
+                    <value>177</value>
                   </enumeratedValue>
                 </enumeratedValues>
               </field>

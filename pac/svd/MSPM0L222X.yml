@@ -400,6 +400,28 @@ UART1:
           LOCK: [0x0, "Lock reset"]
           UNLOCK: [0xB1, "Unlock reset"]
 
+SPI0:
+  "SPI0_GPRCM\\[%s\\]":
+    SPI0_PWREN:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for SPI0 power enable"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        LOCK: [0x0, "Lock pwren"]
+        UNLOCK: [0x26, "Unlock pwren"]
+    SPI0_RSTCTL:
+      _add:
+        KEY_UNLOCK:
+          description: "Key unlock for SPI0 reset control"
+          bitOffset: 24
+          bitWidth: 8
+      KEY_UNLOCK:
+        _write:
+          LOCK: [0x0, "Lock reset"]
+          UNLOCK: [0xB1, "Unlock reset"]
+
 DMA:
   _add:
     _interrupts:

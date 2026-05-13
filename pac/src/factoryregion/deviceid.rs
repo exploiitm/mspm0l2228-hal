@@ -1,1 +1,34 @@
-# [doc = "Register `DEVICEID` reader"] pub type R = crate :: R < DeviceidSpec > ; # [doc = "Field `MANAFACTURER` reader - TI's JEDEC bank and company code"] pub type ManafacturerR = crate :: FieldReader < u16 > ; # [doc = "Field `PARTNUM` reader - Part number of the device"] pub type PartnumR = crate :: FieldReader < u16 > ; # [doc = "Field `VERSION` reader - Revision of this device"] pub type VersionR = crate :: FieldReader ; impl R { # [doc = "Bits 1:11 - TI's JEDEC bank and company code"] # [inline (always)] pub fn manafacturer (& self) -> ManafacturerR { ManafacturerR :: new (((self . bits >> 1) & 0x07ff) as u16) } # [doc = "Bits 12:27 - Part number of the device"] # [inline (always)] pub fn partnum (& self) -> PartnumR { PartnumR :: new (((self . bits >> 12) & 0xffff) as u16) } # [doc = "Bits 28:31 - Revision of this device"] # [inline (always)] pub fn version (& self) -> VersionR { VersionR :: new (((self . bits >> 28) & 0x0f) as u8) } } # [doc = "Device Identifier\n\nYou can [`read`](crate::Reg::read) this register and get [`deviceid::R`](R). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."] pub struct DeviceidSpec ; impl crate :: RegisterSpec for DeviceidSpec { type Ux = u32 ; } # [doc = "`read()` method returns [`deviceid::R`](R) reader structure"] impl crate :: Readable for DeviceidSpec { } # [doc = "`reset()` method sets DEVICEID to value 0"] impl crate :: Resettable for DeviceidSpec { }
+#[doc = "Register `DEVICEID` reader"]
+pub type R = crate::R<DeviceidSpec>;
+#[doc = "Field `MANAFACTURER` reader - TI's JEDEC bank and company code"]
+pub type ManafacturerR = crate::FieldReader<u16>;
+#[doc = "Field `PARTNUM` reader - Part number of the device"]
+pub type PartnumR = crate::FieldReader<u16>;
+#[doc = "Field `VERSION` reader - Revision of this device"]
+pub type VersionR = crate::FieldReader;
+impl R {
+    #[doc = "Bits 1:11 - TI's JEDEC bank and company code"]
+    #[inline(always)]
+    pub fn manafacturer(&self) -> ManafacturerR {
+        ManafacturerR::new(((self.bits >> 1) & 0x07ff) as u16)
+    }
+    #[doc = "Bits 12:27 - Part number of the device"]
+    #[inline(always)]
+    pub fn partnum(&self) -> PartnumR {
+        PartnumR::new(((self.bits >> 12) & 0xffff) as u16)
+    }
+    #[doc = "Bits 28:31 - Revision of this device"]
+    #[inline(always)]
+    pub fn version(&self) -> VersionR {
+        VersionR::new(((self.bits >> 28) & 0x0f) as u8)
+    }
+}
+#[doc = "Device Identifier\n\nYou can [`read`](crate::Reg::read) this register and get [`deviceid::R`](R). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct DeviceidSpec;
+impl crate::RegisterSpec for DeviceidSpec {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`deviceid::R`](R) reader structure"]
+impl crate::Readable for DeviceidSpec {}
+#[doc = "`reset()` method sets DEVICEID to value 0"]
+impl crate::Resettable for DeviceidSpec {}
