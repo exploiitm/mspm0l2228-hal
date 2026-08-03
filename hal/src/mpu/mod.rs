@@ -1,4 +1,4 @@
-mod mpu_config;
+pub mod mpu_config;
 use cortex_m::asm;
 use crate::mpu::mpu_config::{Region, Size};
 use mspm0l2228_pac::MPU;
@@ -35,7 +35,7 @@ fn update_mpu_unprivileged(mpu: &mut MPU, f: impl FnOnce(&mut MPU)) {
     asm::isb();
 }
 
-pub struct Mpu(MPU);
+pub struct Mpu(pub MPU);
 
 impl Mpu {
     /// The smallest supported region size.

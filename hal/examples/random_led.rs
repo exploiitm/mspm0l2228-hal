@@ -38,7 +38,7 @@ fn main() -> ! {
 
     blue_led.set_high();
     let trng =
-        mspm0l2228_hal::trng::Trng::new(p.trng, trng::ClockDiv::Div2, 0x3);
+        mspm0l2228_hal::trng::Trng::new(p.trng, trng::ClockDiv::Div2);
     blue_led.set_low();
 
     match trng {
