@@ -163,6 +163,15 @@ impl core::fmt::Debug for Spi0 {
 }
 #[doc = "PERIPHERALREGION"]
 pub mod spi0;
+#[doc = "PERIPHERALREGION"]
+pub type Spi1 = crate::Periph<spi1::RegisterBlock, 0x4046_a000>;
+impl core::fmt::Debug for Spi1 {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Spi1").finish()
+    }
+}
+#[doc = "PERIPHERALREGION"]
+pub mod spi1;
 #[doc = "FACTORYREGION"]
 pub type Factoryregion = crate::Periph<factoryregion::RegisterBlock, 0x41c4_0000>;
 impl core::fmt::Debug for Factoryregion {
@@ -310,6 +319,8 @@ pub struct Peripherals {
     pub i2c0: I2c0,
     #[doc = "SPI0"]
     pub spi0: Spi0,
+    #[doc = "SPI1"]
+    pub spi1: Spi1,
     #[doc = "FACTORYREGION"]
     pub factoryregion: Factoryregion,
     #[doc = "KEYSTORECTL"]
@@ -368,6 +379,7 @@ impl Peripherals {
             gpioa: unsafe { Gpioa::steal() },
             i2c0: unsafe { I2c0::steal() },
             spi0: unsafe { Spi0::steal() },
+            spi1: unsafe { Spi1::steal() },
             factoryregion: unsafe { Factoryregion::steal() },
             keystorectl: unsafe { Keystorectl::steal() },
             trng: unsafe { Trng::steal() },
