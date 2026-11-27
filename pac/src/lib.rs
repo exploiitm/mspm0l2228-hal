@@ -155,6 +155,33 @@ impl core::fmt::Debug for I2c0 {
 #[doc = "PERIPHERALREGION"]
 pub mod i2c0;
 #[doc = "PERIPHERALREGION"]
+pub type Spi0 = crate::Periph<spi0::RegisterBlock, 0x4046_8000>;
+impl core::fmt::Debug for Spi0 {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Spi0").finish()
+    }
+}
+#[doc = "PERIPHERALREGION"]
+pub mod spi0;
+#[doc = "PERIPHERALREGION"]
+pub type Spi1 = crate::Periph<spi1::RegisterBlock, 0x4046_a000>;
+impl core::fmt::Debug for Spi1 {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Spi1").finish()
+    }
+}
+#[doc = "PERIPHERALREGION"]
+pub mod spi1;
+#[doc = "FACTORYREGION"]
+pub type Factoryregion = crate::Periph<factoryregion::RegisterBlock, 0x41c4_0000>;
+impl core::fmt::Debug for Factoryregion {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Factoryregion").finish()
+    }
+}
+#[doc = "FACTORYREGION"]
+pub mod factoryregion;
+#[doc = "PERIPHERALREGION"]
 pub type Keystorectl = crate::Periph<keystorectl::RegisterBlock, 0x400a_c000>;
 impl core::fmt::Debug for Keystorectl {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -172,15 +199,6 @@ impl core::fmt::Debug for Trng {
 }
 #[doc = "PERIPHERALREGION"]
 pub mod trng;
-#[doc = "FACTORYREGION"]
-pub type Factoryregion = crate::Periph<factoryregion::RegisterBlock, 0x41c4_0000>;
-impl core::fmt::Debug for Factoryregion {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("Factoryregion").finish()
-    }
-}
-#[doc = "FACTORYREGION"]
-pub mod factoryregion;
 #[doc = "PERIPHERALREGION"]
 pub type Uart1 = crate::Periph<uart1::RegisterBlock, 0x4010_a000>;
 impl core::fmt::Debug for Uart1 {
@@ -299,12 +317,16 @@ pub struct Peripherals {
     pub gpioa: Gpioa,
     #[doc = "I2C0"]
     pub i2c0: I2c0,
+    #[doc = "SPI0"]
+    pub spi0: Spi0,
+    #[doc = "SPI1"]
+    pub spi1: Spi1,
+    #[doc = "FACTORYREGION"]
+    pub factoryregion: Factoryregion,
     #[doc = "KEYSTORECTL"]
     pub keystorectl: Keystorectl,
     #[doc = "TRNG"]
     pub trng: Trng,
-    #[doc = "FACTORYREGION"]
-    pub factoryregion: Factoryregion,
     #[doc = "UART1"]
     pub uart1: Uart1,
     #[doc = "I2C2"]
@@ -356,9 +378,11 @@ impl Peripherals {
             uart0: unsafe { Uart0::steal() },
             gpioa: unsafe { Gpioa::steal() },
             i2c0: unsafe { I2c0::steal() },
+            spi0: unsafe { Spi0::steal() },
+            spi1: unsafe { Spi1::steal() },
+            factoryregion: unsafe { Factoryregion::steal() },
             keystorectl: unsafe { Keystorectl::steal() },
             trng: unsafe { Trng::steal() },
-            factoryregion: unsafe { Factoryregion::steal() },
             uart1: unsafe { Uart1::steal() },
             i2c2: unsafe { I2c2::steal() },
             gpiob: unsafe { Gpiob::steal() },

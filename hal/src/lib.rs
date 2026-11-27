@@ -6,6 +6,7 @@ pub mod flash;
 pub mod gpio;
 pub mod i2c;
 pub mod mpu;
+pub mod spi;
 pub mod trng;
 pub mod uart;
 mod utils;
